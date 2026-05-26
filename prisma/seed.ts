@@ -247,719 +247,581 @@ const assessmentQuestions = [
 ]
 
 const problemTemplates = [
-  // ─── FULL-STACK ─────────────────────────────────────────────────────────────
+  // ─── MULTIPLAYER PICTIONARY ──────────────────────────────────────────────────
   {
-    title: "Real-Time Collaboration Board",
-    slug: "real-time-collab-board",
-    category: "full-stack",
+    title: "Multiplayer Pictionary",
+    slug: "multiplayer-pictionary",
+    category: "frontend",
     difficulty: 4,
-    overview: `Build a real-time collaborative whiteboard where multiple users can draw, write sticky notes, and chat simultaneously. This is a modern take on tools like Miro or FigJam, focused on real-time sync and a polished UI.
+    overview: `Build a real-time multiplayer Pictionary game where players take turns drawing a word while others guess it. The game should feature real-time canvas drawing via WebSocket, turn-based rounds with a timer, a word bank with varying difficulty, and a scoring system.
 
-The application should allow users to create boards, invite collaborators via shareable links, and work together in real-time. Every change — drawing strokes, text additions, sticky notes — should sync across all connected clients with minimal latency.
+Players join or create rooms with shareable codes. The drawer sees the secret word and draws on a canvas streamed to all guessers in real-time. Guessers type their guesses in a chat panel — correct guesses earn points. Include emoji reactions for hype, a spectator mode for late joiners, and an end-of-game leaderboard with animated reveals.
 
-Think about conflict resolution, optimistic updates, and handling disconnections gracefully. The UI should be intuitive and responsive, with tool selection (pen, sticky note, text, eraser) and color/size customization.`,
+Think about the drawing tools (brush sizes, colors, undo/clear), word selection fairness (each player gets turns), and anti-cheat (no pixel-text drawing). The UI should feel like a party game — playful colors, sound effects, and smooth animations.`,
     requirements: [
-      "User authentication with session management",
-      "Real-time collaboration using WebSockets (Socket.io or similar)",
-      "Drawing canvas with pen, shapes, text, and sticky note tools",
-      "Shareable board links with permission levels (view/edit)",
-      "Undo/redo history per board session",
-      "User presence indicators (who's viewing/editing)",
-      "Auto-save and recovery on reconnection",
-      "Board listing page with search and recent boards",
+      "Real-time canvas drawing synced to all players via WebSocket",
+      "Room system with join codes and public/private lobbies",
+      "Turn-based gameplay with configurable round timer",
+      "Word bank with difficulty tiers (easy, medium, hard) and category filters",
+      "Chat-based guessing system with real-time submission",
+      "Score tracking with per-round and cumulative scores",
+      "Drawing tools: brush sizes, color palette, undo, clear, eraser",
+      "End-of-game results screen with animated winner reveal and stats",
     ],
     constraints: [
-      "Must handle at least 10 concurrent users on a single board",
-      "Max latency under 500ms for sync operations",
-      "Optimistic UI updates with server reconciliation",
-      "Export boards as PNG or PDF",
+      "Handle 2-8 players per room simultaneously",
+      "Canvas sync latency under 200ms for smooth drawing experience",
+      "Word bank must contain at least 100 words across categories",
+      "No pixel-text or letter hints allowed in drawings (anti-cheat)",
     ],
     bonusFeatures: [
-      "Template boards (brainstorming, retro, planning)",
-      "Comment threads on specific elements",
-      "Dark mode toggle",
+      "Emoji reactions and quick-chat during rounds",
+      "Spectator mode for viewing ongoing games without playing",
+      "Custom word packs created by players",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with real-time sync explanation",
+      "ARCHITECTURE.md with WebSocket sync and game state management explanation",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Real-time sync quality and latency",
-      "UI/UX polish and responsiveness",
-      "Code organization and architecture",
-      "Error handling and reconnection logic",
-      "Feature completeness against requirements",
-      "Deployment quality and accessibility",
+      "Real-time drawing sync quality and latency",
+      "Game logic correctness (turn rotation, scoring, timer)",
+      "UI/UX polish — playful, responsive, animated",
+      "Drawing tool completeness and usability",
+      "Chat and guess matching performance",
+      "Code organization and real-time architecture",
     ],
-    variantGroup: "full-stack-real-time",
+    variantGroup: "games-pictionary",
   },
+  // ─── GITHUB WRAPPED ─────────────────────────────────────────────────────────
   {
-    title: "SaaS Subscription Dashboard",
-    slug: "saas-subscription-dashboard",
+    title: "GitHub Wrapped",
+    slug: "github-wrapped",
+    category: "frontend",
+    difficulty: 3,
+    overview: `Create an animated, shareable \"year in code\" page for any GitHub username. Enter a username and watch as the app generates a beautiful, scrollable visual story of their GitHub year — languages used, commit heatmap, peak coding hours, most productive days, longest streaks, top repositories, and contributor network graph.
+
+The experience should feel like Spotify Wrapped — animated transitions between \"slides\", celebratory confetti, personalized insights (\"You're a night owl! 73% of your commits happen after midnight\"), and a shareable link they can post on social media.
+
+Data comes from the GitHub API (public repos/events). Cache aggressively to avoid rate limits. The shareable page should be an SSR-rendered snapshot with Open Graph preview.`,
+    requirements: [
+      "Enter a GitHub username to generate a personalized year-in-code page",
+      "Animated slide-based experience with scroll or click navigation",
+      "Language breakdown with percentage bars and color coding",
+      "Commit heatmap (GitHub-style calendar grid) showing daily activity",
+      "Peak coding hours chart showing time-of-day commit distribution",
+      "Top repositories section with star counts and commit activity",
+      "Shareable link with Open Graph preview image",
+      "Aggressive caching strategy to handle GitHub API rate limits",
+    ],
+    constraints: [
+      "Must work with public GitHub data only (no auth required)",
+      "Handle users with 1,000+ repositories and 10,000+ commits",
+      "GitHub API calls must be cached for minimum 5 minutes",
+      "Page must load in under 3 seconds for cached profiles",
+    ],
+    bonusFeatures: [
+      "Download your wrapped as an image or video",
+      "Compare two GitHub profiles side-by-side",
+      "GitHub README badge showing wrapped stats",
+    ],
+    deliverables: [
+      "Git repository with full source code",
+      "Live deployment URL",
+      "ARCHITECTURE.md with data fetching and caching strategy",
+      "AI declaration and prompts/ folder",
+    ],
+    evaluationCriteria: [
+      "Visual storytelling quality and animation polish",
+      "Data accuracy and insight uniqueness",
+      "Performance and cache optimization",
+      "Shareable page implementation with OG preview",
+      "Error handling for invalid/private profiles",
+      "Code architecture and readability",
+    ],
+    variantGroup: "frontend-wrapped",
+  },
+  // ─── LIVE POLL BATTLE ───────────────────────────────────────────────────────
+  {
+    title: "Live Poll Battle",
+    slug: "live-poll-battle",
     category: "full-stack",
     difficulty: 3,
-    overview: `Create a full-stack SaaS subscription management dashboard where customers can view their subscription plans, usage stats, invoices, and billing history. Admins can manage plans, view all customers, and generate reports.
+    overview: `Build a live polling platform where anyone can create a poll, share it via QR code or link, and watch results animate in real-time. Think of it as a supercharged, gamified alternative to Mentimeter or Slido — perfect for classrooms, conferences, or party games.
 
-The dashboard should display real-time usage metrics (API calls, storage, active users) with interactive charts. Implement Stripe-like subscription management with plan upgrades/downgrades, proration, and payment method management.
+Users create polls with multiple choice options, set a timer, and launch. Voters scan a QR code or open the link and vote. Results update in REAL TIME — bar charts grow, pie charts rotate, and when the timer hits zero, confetti explodes and the winner is revealed with a dramatic animation.
 
-Focus on clean data visualization, responsive design, and a smooth subscription flow. The app should handle webhook events from payment providers for subscription lifecycle management.`,
+Include a \"Speaker View\" mode for presenters (large text, full-screen charts), mobile-first voting experience (no login required to vote), and poll analytics (response times, demographics via custom fields). Polls can be saved as templates.`,
     requirements: [
-      "User registration with email verification",
-      "Subscription plan listing with feature comparison",
-      "Usage metrics dashboard with interactive charts (Chart.js or Recharts)",
-      "Payment method management (add/remove/update)",
-      "Invoice history with download links",
-      "Admin panel: manage plans, view all customers",
-      "Webhook endpoint for subscription lifecycle events",
-      "Email notifications for billing events",
+      "Poll creation with multiple choice options, image support, and timer",
+      "Real-time results update using WebSockets or Server-Sent Events",
+      "Animated chart components (bar, pie, donut) with smooth transitions",
+      "QR code generation per poll for easy sharing",
+      "Confetti/particle animation on poll reveal",
+      "Speaker View: full-screen, large text, presenter-friendly display",
+      "Mobile-first voting experience — no account required to vote",
+      "Poll analytics: response timeline, voter count, completion rate",
     ],
     constraints: [
-      "Use a mock payment provider or Stripe test mode",
-      "Responsive layout for mobile and desktop",
-      "All API endpoints must have rate limiting",
-      "Proration calculations must be accurate",
+      "Support 500+ concurrent voters on a single poll",
+      "Results must reflect new votes within 1 second",
+      "Polls auto-expire and become read-only after timer ends",
+      "One vote per device (fingerprint-based, no auth required)",
     ],
     bonusFeatures: [
-      "Multi-currency support",
-      "Team/org accounts with role-based access",
-      "Custom invoice branding",
+      "Quiz mode with correct answers and scoring",
+      "Word cloud visualization for open-ended responses",
+      "Custom themes and branding for enterprise polls",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with subscription flow",
+      "ARCHITECTURE.md with real-time update approach",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Subscription flow completeness",
-      "Data visualization quality",
-      "Code organization and testing",
-      "Payment integration (even mock) accuracy",
-      "Admin panel functionality",
-      "Deployment and reliability",
-    ],
-    variantGroup: "full-stack-saas",
-  },
-  // ─── AUTOMATION ─────────────────────────────────────────────────────────────
-  {
-    title: "CI/CD Pipeline Visualizer",
-    slug: "cicd-pipeline-visualizer",
-    category: "automation",
-    difficulty: 3,
-    overview: `Build a web application that visualizes CI/CD pipeline runs from GitHub Actions or a similar provider. The app should fetch pipeline data, display run history, show individual job steps with timing, and provide failure analysis.
-
-Think of this as a more visual, user-friendly alternative to the default GitHub Actions interface. Users should be able to see pipeline DAGs (directed acyclic graphs), drill into failed steps, view logs, and get summary statistics across multiple repositories.
-
-The application should poll or receive webhook events for live updates, showing real-time progress of running pipelines with animated transitions.`,
-    requirements: [
-      "OAuth integration with GitHub/GitLab for pipeline access",
-      "Pipeline run history with status badges and duration",
-      "DAG visualization showing job dependencies and parallel execution",
-      "Step-level drill-down with log viewer (syntax highlighting)",
-      "Failure analysis with common error pattern detection",
-      "Multi-repository dashboard with filtering",
-      "Real-time updates via webhooks or polling",
-      "Summary stats: success rate, avg duration, flaky test detection",
-    ],
-    constraints: [
-      "Must work with public GitHub repos without auth (read-only mode)",
-      "Handle pagination for repos with 1000+ pipeline runs",
-      "Log viewer must handle files of 10MB+",
-      "Responsive design for mobile monitoring",
-    ],
-    bonusFeatures: [
-      "Slack/Discord notification integration",
-      "Deployment timeline overlay",
-      "Custom dashboard widgets",
-    ],
-    deliverables: [
-      "Git repository with full source code",
-      "Live deployment URL",
-      "ARCHITECTURE.md with data flow explanation",
-      "AI declaration and prompts/ folder",
-    ],
-    evaluationCriteria: [
-      "DAG visualization quality and accuracy",
-      "Real-time update mechanism",
-      "Log viewer performance with large files",
-      "Error analysis usefulness",
-      "UI/UX polish",
-      "Code architecture and maintainability",
-    ],
-    variantGroup: "automation-cicd",
-  },
-  {
-    title: "Email Template Builder with Automation",
-    slug: "email-template-builder",
-    category: "automation",
-    difficulty: 3,
-    overview: `Create a drag-and-drop email template builder with automated sending capabilities. Users should be able to visually design email templates, manage contact lists, schedule campaigns, and track open/click rates.
-
-The builder should provide a WYSIWYG interface with common email components (header, text, image, button, divider, footer). Templates should render reliably across major email clients (Gmail, Outlook, Apple Mail). Include an automation engine for triggered emails (welcome series, abandoned cart, birthday).`,
-    requirements: [
-      "Drag-and-drop email template builder with live preview",
-      "10+ reusable components (header, text, image, button, columns, etc.)",
-      "Responsive email rendering preview (desktop + mobile)",
-      "Contact list management with CSV import",
-      "Campaign scheduling with timezone support",
-      "Open rate and click tracking via pixel + link wrapping",
-      "Automation rules engine for triggered sequences",
-      "Template version history and A/B testing",
-    ],
-    constraints: [
-      "Templates must render consistently in Gmail and Outlook",
-      "Support at least 10,000 contacts per campaign",
-      "Drag-and-drop must work on mobile browsers",
-      "Email sending must use a transactional email service (SendGrid/Mailgun mock)",
-    ],
-    bonusFeatures: [
-      "AI subject line generator",
-      "Spam score checker",
-      "Custom CSS injection for advanced users",
-    ],
-    deliverables: [
-      "Git repository with full source code",
-      "Live deployment URL",
-      "ARCHITECTURE.md with email rendering approach",
-      "AI declaration and prompts/ folder",
-    ],
-    evaluationCriteria: [
-      "Drag-and-drop editor usability and completeness",
-      "Email rendering accuracy across clients",
-      "Automation engine flexibility",
-      "Campaign management features",
-      "Code quality and testing",
-      "Deployment and documentation",
-    ],
-    variantGroup: "automation-email",
-  },
-  // ─── AI WORKFLOWS ───────────────────────────────────────────────────────────
-  {
-    title: "AI-Powered Code Review Assistant",
-    slug: "ai-code-review-assistant",
-    category: "ai-workflows",
-    difficulty: 5,
-    overview: `Build a web application that performs automated code reviews using AI. Users submit PR URLs or paste code snippets, and the application provides detailed reviews covering code quality, security vulnerabilities, performance issues, and best practices.
-
-This is not just a linter — it should understand context, suggest improvements with code examples, detect common anti-patterns, and provide educational explanations. The system should maintain a review history and track code quality trends across a repository.
-
-Integrate with GitHub/GitLab via webhooks for automatic review on PR creation. Support multiple programming languages and frameworks.`,
-    requirements: [
-      "Code submission via PR URL, direct paste, or file upload",
-      "AI-powered review covering: quality, security, performance, best practices",
-      "Language-specific linting and style suggestions (ESLint, Prettier, Pylint integration)",
-      "Review history dashboard with per-repository trends",
-      "GitHub/GitLab webhook integration for automatic PR review",
-      "Severity ratings (critical, major, minor, suggestion) for each finding",
-      "Markdown-formatted review report with code snippets",
-      "User feedback mechanism (upvote/downvote reviews for fine-tuning)",
-    ],
-    constraints: [
-      "Must handle files up to 5000 lines",
-      "Support at least 5 programming languages (JS, TS, Python, Go, Rust)",
-      "AI API calls must be rate-limited and cached",
-      "Review must complete within 60 seconds for standard PRs",
-    ],
-    bonusFeatures: [
-      "Diff view showing suggested changes inline",
-      "Auto-fix with PR creation",
-      "Custom rule configuration per project",
-    ],
-    deliverables: [
-      "Git repository with full source code",
-      "Live deployment URL",
-      "ARCHITECTURE.md with AI integration approach",
-      "AI declaration and prompts/ folder",
-    ],
-    evaluationCriteria: [
-      "Review quality and accuracy",
-      "Multi-language support depth",
-      "Integration quality (webhooks, PR flow)",
-      "Performance and caching strategy",
-      "UI/UX for reviewing results",
-      "Architecture and extensibility",
-    ],
-    variantGroup: "ai-code-review",
-  },
-  {
-    title: "AI Chatbot with RAG Pipeline",
-    slug: "ai-chatbot-rag-pipeline",
-    category: "ai-workflows",
-    difficulty: 4,
-    overview: `Build a Retrieval-Augmented Generation (RAG) chatbot that answers questions based on a custom knowledge base. Users upload documents (PDF, text, markdown), and the system indexes them into a vector database for semantic search.
-
-The chatbot should provide accurate, source-cited answers using an LLM of choice (OpenAI, Claude, or local via Ollama). Show confidence scores, source document excerpts, and follow-up suggestions. Implement conversation memory for contextual follow-ups.
-
-Design a clean chat interface with document management, chunk visualization, and query debugging tools.`,
-    requirements: [
-      "Document upload (PDF, TXT, MD, DOCX) with chunking and indexing",
-      "Vector database integration (Pinecone, Qdrant, or in-memory FAISS)",
-      "Semantic search with hybrid (keyword + vector) retrieval",
-      "Source-cited answers with relevant excerpt highlighting",
-      "Conversation history with contextual memory",
-      "Document management UI (list, delete, re-index)",
-      "Confidence scoring and alternative answers",
-      "Streaming responses for real-time chat feel",
-    ],
-    constraints: [
-      "Handle documents up to 100 pages each",
-      "Support at least 3 file formats",
-      "Retrieval latency under 2 seconds",
-      "Must work with at least one free/self-hosted LLM option",
-    ],
-    bonusFeatures: [
-      "Admin dashboard for query analytics",
-      "Multi-tenant document isolation",
-      "Batch document processing with progress tracking",
-    ],
-    deliverables: [
-      "Git repository with full source code",
-      "Live deployment URL",
-      "ARCHITECTURE.md with RAG pipeline explanation",
-      "AI declaration and prompts/ folder",
-    ],
-    evaluationCriteria: [
-      "Retrieval accuracy and relevance",
-      "Answer quality with proper citations",
-      "Document processing pipeline robustness",
-      "UI/UX of chat interface",
-      "Performance and latency optimization",
+      "Real-time update performance and reliability",
+      "Chart animation quality and data visualization",
+      "Mobile voting UX and accessibility",
+      "Speaker View quality and presenter features",
+      "Poll creation flow and template system",
       "Code architecture and testing",
     ],
-    variantGroup: "ai-rag-chatbot",
+    variantGroup: "full-stack-polls",
   },
-  // ─── APIs ───────────────────────────────────────────────────────────────────
+  // ─── COLLABORATIVE WHITEBOARD ───────────────────────────────────────────────
   {
-    title: "API Gateway with Rate Limiting & Analytics",
-    slug: "api-gateway-rate-limiting",
-    category: "apis",
+    title: "Collaborative Whiteboard",
+    slug: "collaborative-whiteboard",
+    category: "full-stack",
     difficulty: 4,
-    overview: `Build an API gateway that sits in front of microservices, providing unified authentication, rate limiting, request/response transformation, and analytics. This is a lightweight alternative to Kong or AWS API Gateway.
+    overview: `Build a real-time collaborative whiteboard where multiple users can draw, place sticky notes, add shapes, and write text simultaneously — like a Figma-lite for brainstorming. Every user's cursor is visible to others (cursor presence), and all changes sync instantly via WebSocket.
 
-The gateway should route requests to different backend services based on path patterns, apply rate limits per API key or IP, collect usage metrics, and provide a dashboard for monitoring. Include a developer portal where users can generate API keys, view docs, and test endpoints.
+Users create boards, invite collaborators via shareable links, and start creating. The canvas supports infinite pan/zoom. Tools include: freehand pen (with pressure sensitivity simulation), shape tools (rectangle, circle, arrow, line), sticky notes (colored, resizable), text boxes, and an image uploader.
 
-Focus on performance — the gateway should add minimal latency while providing robust security and observability features.`,
+Focus on the user experience: smooth 60fps canvas rendering, intuitive tool selection, keyboard shortcuts, layer management, and a clean minimal UI. Boards auto-save and can be exported as PNG/PDF.`,
     requirements: [
-      "Request routing to multiple backend services based on path patterns",
-      "Rate limiting with configurable tiers (per key, per IP, per endpoint)",
-      "API key authentication and management",
-      "Request/response transformation (headers, body, CORS)",
-      "Usage analytics dashboard with charts and export",
-      "Developer portal with API documentation (OpenAPI/Swagger)",
-      "Logging middleware with structured JSON logs",
-      "Health check endpoint and uptime monitoring",
+      "Infinite canvas with smooth pan/zoom (transform matrix)",
+      "Drawing tools: freehand pen, shapes, sticky notes, text, image upload",
+      "Real-time sync of all canvas elements via WebSocket",
+      "Cursor presence — see other users' cursors and selections in real-time",
+      "Shareable board links with view/edit permissions",
+      "Layer management with z-order controls",
+      "Undo/redo history for the entire session per user",
+      "Auto-save with reconnection recovery",
     ],
     constraints: [
-      "Gateway must add less than 10ms latency per request",
-      "Support 1000+ concurrent connections",
-      "Rate limit data must survive server restarts",
-      "All analytics data must be cached with TTL",
+      "Canvas must render at 60fps with 1000+ elements",
+      "Support 10+ concurrent users on a single board",
+      "Sync latency under 100ms for drawing operations",
+      "Export must preserve vector quality (SVG-based export)",
     ],
     bonusFeatures: [
-      "WebSocket proxy support",
-      "Canary release routing",
-      "Circuit breaker pattern implementation",
+      "Template boards (brainstorming, wireframe, retro, mindmap)",
+      "Comment threads attached to specific elements",
+      "Dark mode and multiple canvas backgrounds (grid, dots, lined)",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with routing and rate limiting approach",
+      "ARCHITECTURE.md with real-time sync and conflict resolution explanation",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Performance and latency overhead",
-      "Rate limiting accuracy and flexibility",
-      "Analytics dashboard completeness",
-      "Developer portal UX",
-      "Security and authentication robustness",
-      "Code quality and documentation",
+      "Canvas rendering performance and smoothness",
+      "Real-time sync quality and conflict handling",
+      "Drawing tool completeness and UX",
+      "Cursor presence implementation",
+      "Export quality and format support",
+      "Code architecture and extensibility",
     ],
-    variantGroup: "apis-gateway",
+    variantGroup: "full-stack-collab-board",
   },
+  // ─── SPOTIFY TASTE VISUALIZER ───────────────────────────────────────────────
   {
-    title: "Webhook Receiver & Event Bus",
-    slug: "webhook-event-bus",
-    category: "apis",
+    title: "Spotify Taste Visualizer",
+    slug: "spotify-taste-visualizer",
+    category: "frontend",
     difficulty: 3,
-    overview: `Build a webhook receiver that ingests events from external services, transforms them into a standardized format, and routes them to configured subscribers with retry logic. Think of it as a lightweight Zapier or webhook relay.
+    overview: `Build a beautiful interactive visualization tool where users enter an artist, genre, or song and see an animated exploration of music relationships. Create a \"mood wheel\" that plots artists on emotional axes (happy/sad, energetic/calm), a \"genre map\" that shows how genres connect and influence each other, and an \"audio feature radar\" chart that visualizes danceability, energy, acousticness, and more.
 
-The system should accept webhooks from popular services (GitHub, Stripe, Slack), provide a dashboard to view incoming events, configure transformations, and monitor delivery status. Include a subscriber SDK or webhook forwarding mechanism.
+Use the Spotify Web API (with a demo/mock mode as fallback when API keys aren't available) to fetch artist data, audio features, and recommendations. The visualizations should be stunning — think D3.js or Three.js with smooth animations, glowing nodes, and interactive hover/tap for details.
 
-Handle delivery guarantees (at-least-once), dead-letter queues, and idempotency keys. Provide a public API for programmatic subscriber management.`,
+Users can save their \"taste profile\" and generate an embeddable widget for their personal website or GitHub README.`,
     requirements: [
-      "Webhook ingestion endpoint with signature verification",
-      "Event transformation pipeline (JSONata or template-based)",
-      "Subscriber management with retry policy configuration",
-      "Delivery status dashboard with logs per event",
-      "Dead-letter queue for failed deliveries",
-      "At-least-once delivery with idempotency keys",
-      "Public API for subscriber CRUD operations",
-      "Support for common webhook formats (GitHub, Stripe, Slack)",
+      "Search for artists, genres, or songs to generate visualizations",
+      "Mood wheel: plot artists on emotional/energetic axes with clustering",
+      "Genre map: interactive network graph showing genre relationships",
+      "Audio feature radar chart (danceability, energy, acousticness, valence, etc.)",
+      "Interactive nodes — hover/click for details, drag to explore",
+      "Smooth animations, transitions, and visual effects (glow, pulse)",
+      "Mock data fallback when Spotify API is unavailable",
+      "Shareable taste profile with embeddable widget",
     ],
     constraints: [
-      "Handle 100+ webhooks per second",
-      "Retry with exponential backoff (max 3 retries)",
-      "Store event history for 30 days",
-      "All transformations must be testable",
+      "Visualizations must work smoothly on mobile devices",
+      "API calls must be debounced and cached",
+      "Mock data must be realistic and diverse",
+      "Page must render without WebGL fallback for Three.js features",
     ],
     bonusFeatures: [
-      "Webhook testing tool (send mock events)",
-      "Event replay from any point in history",
-      "Slack/Discord notification on delivery failure",
+      "Compare two artists/songs side-by-side",
+      "Discover similar artists with preview clips",
+      "Spotify login for personalized recommendations",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with event flow explanation",
+      "ARCHITECTURE.md with visualization approach and API integration",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Event ingestion throughput and reliability",
-      "Transformation pipeline flexibility",
-      "Dashboard usability and event visibility",
-      "Retry and dead-letter queue implementation",
-      "API design and documentation",
-      "Code quality and testing",
+      "Visualization quality and visual appeal",
+      "Interactivity and exploration experience",
+      "Data accuracy from Spotify API or mock quality",
+      "Mobile responsiveness and performance",
+      "Embeddable widget implementation",
+      "Code architecture and data flow design",
     ],
-    variantGroup: "apis-webhook",
+    variantGroup: "frontend-visualizer",
   },
-  // ─── DASHBOARDS ──────────────────────────────────────────────────────────────
+  // ─── WEB TERMINAL ───────────────────────────────────────────────────────────
   {
-    title: "Multi-Source Analytics Dashboard",
-    slug: "multi-source-analytics-dashboard",
-    category: "dashboards",
+    title: "Web Terminal",
+    slug: "web-terminal",
+    category: "frontend",
+    difficulty: 4,
+    overview: `Build a fully functional browser-based terminal emulator that looks and feels like a real developer terminal. It should support custom commands, a virtual file system, multiple themes (matrix, hacker, light, dark), split panes, command history, and intelligent autocomplete.
+
+The terminal should work entirely on the frontend (no backend needed for basic operation) with a virtual filesystem stored in memory. Users can run commands like ls, cd, cat, mkdir, touch, rm, grep, echo, and custom commands unique to your implementation. Add fun easter egg commands (cmatrix, star wars, fortune, cowsay-style).
+
+Include a command parser with piped commands, redirects, and argument flags. Themes should be customizable. Split panes let users work in multiple terminals side-by-side. Command suggestion appears as they type (fuzzy find).`,
+    requirements: [
+      "Fully interactive terminal emulator with blinking cursor and ANSI colors",
+      "Virtual file system with directories, files, permissions (chmod)",
+      "10+ built-in commands: ls, cd, cat, mkdir, touch, rm, cp, mv, grep, echo, pwd, clear, help",
+      "Command history with arrow key navigation and reverse search (Ctrl+R)",
+      "Intelligent autocomplete for commands, file paths, and flags",
+      "Multiple themes with customizable colors, font, opacity, and backgrounds",
+      "Split pane support (horizontal/vertical) with resize handles",
+      "Pipe (|) and redirect (>, >>) support between commands",
+    ],
+    constraints: [
+      "Terminal must render at 60fps with continuous output",
+      "Support fonts that maintain monospace alignment",
+      "Parsing must handle complex commands with nested flags and pipes",
+      "Virtual file system must persist in memory across page navigation (sessionStorage)",
+    ],
+    bonusFeatures: [
+      "SSH integration via WebSocket proxy to connect to real servers",
+      "Command recording and replay for demos",
+      "Easter egg commands: cmatrix, star wars telnet, fortune, cowsay",
+    ],
+    deliverables: [
+      "Git repository with full source code",
+      "Live deployment URL",
+      "ARCHITECTURE.md with command parsing and virtual file system explanation",
+      "AI declaration and prompts/ folder",
+    ],
+    evaluationCriteria: [
+      "Terminal emulation accuracy and rendering quality",
+      "Command implementation completeness and correctness",
+      "Autocomplete and history UX polish",
+      "Theme system quality and customizability",
+      "Split pane implementation and usability",
+      "Code architecture and extensibility for new commands",
+    ],
+    variantGroup: "frontend-terminal",
+  },
+  // ─── INFINITE CANVAS NOTES ─────────────────────────────────────────────────
+  {
+    title: "Infinite Canvas Notes",
+    slug: "infinite-canvas-notes",
+    category: "frontend",
+    difficulty: 4,
+    overview: `Build a note-taking app on an infinite canvas where notes are Markdown cards that can be freely positioned, connected with arrows/lines, and organized spatially. Think Obsidian + Miro — a graph-based thinking tool for visual note-takers.
+
+Users create Markdown notes that appear as draggable cards on the infinite canvas. Cards can be connected with labeled edges to show relationships. The canvas auto-organizes into a graph view showing how notes connect. Users can zoom in/out, pan around, and group related notes into clusters.
+
+Local-first architecture with IndexedDB storage means notes are instantly available offline. Export your entire canvas as Markdown files, JSON, or PNG. The app should feel fast and responsive — no login required to start taking notes.`,
+    requirements: [
+      "Infinite canvas with smooth pan, zoom, and drag-to-select",
+      "Markdown note cards with real-time editing and live preview",
+      "Drag notes freely to position them anywhere on canvas",
+      "Connection lines/arrows between notes with labels",
+      "Auto-generated graph view showing note relationships",
+      "Add, delete, search, and filter notes",
+      "Local-first storage via IndexedDB (works offline)",
+      "Export as Markdown files, JSON graph, or PNG screenshot",
+    ],
+    constraints: [
+      "Canvas must handle 500+ notes without performance degradation",
+      "Markdown rendering must support common syntax (headings, lists, code blocks, images, links)",
+      "Local storage must not exceed browser quota (graceful fallback)",
+      "All core functionality must work without any backend",
+    ],
+    bonusFeatures: [
+      "Collaborative editing via WebRTC (peer-to-peer sync)",
+      "Daily notes with auto-generated date-based notes",
+      "Canvas templates: mind map, project planning, Zettelkasten",
+    ],
+    deliverables: [
+      "Git repository with full source code",
+      "Live deployment URL",
+      "ARCHITECTURE.md with local-first data model and canvas rendering approach",
+      "AI declaration and prompts/ folder",
+    ],
+    evaluationCriteria: [
+      "Canvas interaction smoothness and UX",
+      "Markdown note editing and preview quality",
+      "Graph view accuracy and visual appeal",
+      "Local-first storage reliability and offline support",
+      "Export feature completeness",
+      "Code architecture and performance optimization",
+    ],
+    variantGroup: "frontend-canvas-notes",
+  },
+  // ─── LIVE CAPTION STUDIO ────────────────────────────────────────────────────
+  {
+    title: "Live Caption Studio",
+    slug: "live-caption-studio",
+    category: "frontend",
     difficulty: 3,
-    overview: `Create a comprehensive analytics dashboard that pulls data from multiple sources (database, APIs, CSV uploads) and visualizes it in customizable widgets. Users should be able to build their own dashboard layouts with drag-and-drop widgets.
+    overview: `Build a browser-based live captioning studio that uses the Web Speech API to convert microphone input into real-time captions. Perfect for accessibility, live streaming, classroom lectures, and content creation.
 
-The dashboard should support various chart types, filter data by date range and dimensions, and export reports as PDF or CSV. Include a SQL query editor for advanced users who want to write custom queries against connected data sources.
+Users grant microphone access, and captions appear in real-time with word-by-word highlighting. The full transcript is searchable and can be saved as SRT or VTT subtitle files for video editing. Multiple display modes: floating captions overlay, presenter view (large text with speaker notes), and transcript view (full scrollable history).
 
-Focus on performance — dashboard load time under 2 seconds even with complex widgets, and smooth interactions for filtering and drill-down.`,
+Include a pause/resume button, language selection (for languages supported by Web Speech), speaker label support for multiple speakers, and a confidence indicator. The interface should be clean, dark-themed, and distraction-free.`,
     requirements: [
-      "Connect to multiple data sources (PostgreSQL, REST API, CSV upload)",
-      "Drag-and-drop widget layout editor",
-      "10+ chart types (line, bar, pie, table, heatmap, gauge, etc.)",
-      "Date range picker with presets and custom ranges",
-      "Interactive filtering with cross-widget filtering",
-      "SQL query editor with syntax highlighting and auto-complete",
-      "Dashboard sharing with role-based permissions",
-      "Export widgets as PNG, dashboard as PDF",
+      "Microphone input → Web Speech API → real-time captions",
+      "Word-by-word highlighting as speech is recognized",
+      "Searchable full transcript with timestamps",
+      "Save/export as SRT and VTT subtitle formats",
+      "Multiple display modes: floating overlay, presenter view, transcript view",
+      "Pause, resume, and clear caption session",
+      "Language selection for supported speech recognition languages",
+      "Captions displayed with configurable font size, color, and background opacity",
     ],
     constraints: [
-      "Dashboard must load in under 2 seconds",
-      "Handle datasets up to 100,000 rows per widget",
-      "Widget positions persist across sessions",
-      "SQL editor must prevent dangerous queries (read-only for non-admins)",
+      "Must work entirely in the browser (no backend for speech processing)",
+      "Handle at least 30 minutes of continuous captioning",
+      "Transcript search must be instant for sessions up to 2 hours",
+      "Export files must be valid SRT/VTT format (pass validator checks)",
     ],
     bonusFeatures: [
-      "Alert rules (when metric exceeds threshold)",
-      "Scheduled email PDF reports",
-      "Embedded dashboard iframe support",
+      "Speaker diarization (detect and label multiple speakers)",
+      "Live translation to other languages",
+      "Keyboard shortcuts for all controls",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with data flow explanation",
+      "ARCHITECTURE.md with Web Speech API usage and export format handling",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Visualization quality and chart variety",
-      "Drag-and-drop UX polish",
-      "Data source integration flexibility",
-      "SQL editor usability",
-      "Performance with large datasets",
-      "Code quality and architecture",
+      "Caption accuracy and real-time performance",
+      "UI/UX cleanliness and distraction-free design",
+      "Export format correctness (SRT/VTT)",
+      "Transcript search performance",
+      "Accessibility features and keyboard navigation",
+      "Code organization and browser API handling",
     ],
-    variantGroup: "dashboards-analytics",
+    variantGroup: "frontend-captions",
   },
-  // ─── DATA ───────────────────────────────────────────────────────────────────
+  // ─── GITHUB PROFILE README STUDIO ───────────────────────────────────────────
   {
-    title: "ETL Pipeline Builder",
-    slug: "etl-pipeline-builder",
-    category: "data",
-    difficulty: 4,
-    overview: `Build a visual ETL (Extract, Transform, Load) pipeline builder where users can define data extraction from sources (APIs, databases, files), apply transformations (filter, map, aggregate, join), and load results into destinations.
-
-This is a simplified version of tools like Apache NiFi or Airbyte. Users should be able to design pipelines visually with a node-based editor, schedule runs, monitor execution, and view data samples at each stage.
-
-Focus on the visual pipeline builder experience — nodes representing operations, drag-to-connect edges, inline data preview, and execution status indicators.`,
-    requirements: [
-      "Visual node-based pipeline editor (drag, connect, configure)",
-      "10+ node types: HTTP extractor, DB extractor, CSV loader, filter, map, aggregate, join, sort, JSON loader",
-      "Data preview at each pipeline stage (sample rows)",
-      "Pipeline scheduling (cron-based) with manual trigger",
-      "Execution history with per-stage timing and row counts",
-      "Error handling with per-stage retry policy",
-      "Pipeline import/export as JSON",
-      "Credential management for data sources",
-    ],
-    constraints: [
-      "Handle datasets up to 500MB in memory",
-      "Pipeline editor must work smoothly in browser",
-      "Maximum 50 nodes per pipeline",
-      "Sensitive credentials must be encrypted at rest",
-    ],
-    bonusFeatures: [
-      "Auto-schema detection from data sources",
-      "Data quality checks as pipeline stages",
-      "Parallel branch execution",
-    ],
-    deliverables: [
-      "Git repository with full source code",
-      "Live deployment URL",
-      "ARCHITECTURE.md with pipeline execution model",
-      "AI declaration and prompts/ folder",
-    ],
-    evaluationCriteria: [
-      "Pipeline editor UX and completeness",
-      "Node type variety and configuration flexibility",
-      "Execution engine correctness",
-      "Error handling and retry logic",
-      "Data preview accuracy and performance",
-      "Code architecture and testing",
-    ],
-    variantGroup: "data-etl",
-  },
-  // ─── TOOLING ────────────────────────────────────────────────────────────────
-  {
-    title: "Developer Snippet Manager",
-    slug: "developer-snippet-manager",
-    category: "tooling",
+    title: "GitHub Profile README Studio",
+    slug: "github-profile-readme-studio",
+    category: "frontend",
     difficulty: 2,
-    overview: `Create a developer-focused code snippet manager where users can save, organize, search, and share code snippets. Think of it as a personal knowledge base for code with syntax highlighting, tagging, and AI-powered search.
+    overview: `Create a drag-and-drop builder for GitHub profile READMEs. Users visually compose their profile README by dragging sections onto a canvas, configuring each with live preview. Generated Markdown can be copied with one click and pasted into their GitHub profile.
 
-Snippets should support multiple languages, version history, and one-click copy. Include a browser extension or VS Code extension for quick saving. Social features include public snippet sharing with comments and upvotes.
+Sections include: header (name, title, tagline), stats cards (GitHub stats, top languages, streak), tech stack icons grid, social links, pinned repositories, contribution graph embed, recent blog posts, visitor counter, and custom markdown blocks.
 
-Focus on the search experience — fast full-text search across snippets with language filters, tag filters, and AI semantic search.`,
+The builder provides theme previews (choose from presets), real-time Markdown output, and a live preview of how the README will look on GitHub. Users can save multiple drafts and share README templates with the community.`,
     requirements: [
-      "Create, edit, delete code snippets with syntax highlighting",
-      "Language detection and formatting (20+ languages)",
-      "Tag-based organization with auto-suggest",
-      "Full-text search with language and tag filters",
-      "AI semantic search (embedding-based) for finding relevant snippets",
-      "Markdown description support per snippet",
-      "Public/private snippet visibility",
-      "Snippet collections (folders/playlists)",
+      "Drag-and-drop section builder with real-time canvas preview",
+      "10+ sections: header, stats, tech stack, social links, pinned repos, contribution graph, visitor counter, blog posts, custom markdown, divider, spacer",
+      "GitHub stats integration (public API) for live stat cards",
+      "Tech stack icon grid with 50+ icon options (customizable colors)",
+      "Live Markdown output panel with one-click copy",
+      "Theme presets with preview colors (dark, light, hacker, cyberpunk, minimal)",
+      "Save drafts locally in browser storage",
+      "Template gallery where users can start from existing designs",
     ],
     constraints: [
-      "Search results must appear in under 500ms",
-      "Snippets can be up to 500 lines",
-      "Syntax highlighting must support 20+ languages",
-      "VS Code extension must work with basic auth",
+      "Markdown output must render correctly on GitHub (no unsupported syntax)",
+      "Stats cards must use publicly available GitHub stats APIs (or mock)",
+      "Drag-and-drop must work on touch devices",
+      "Icon grid must offer at least 50 tech icons with proper attribution",
     ],
     bonusFeatures: [
-      "Browser extension for saving from any site",
-      "Snippet sharing with expiring links",
-      "AI snippet generator from natural language description",
+      "Export as image for sharing on social media",
+      "Community template marketplace with voting",
+      "Automatic GitHub Gist backup of your README drafts",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with search architecture",
+      "ARCHITECTURE.md with drag-and-drop implementation and Markdown generation",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Search performance and accuracy",
-      "UI/UX for snippet management",
-      "Syntax highlighting quality",
-      "AI features usefulness",
-      "Code quality and testing",
-      "Deployment and documentation",
+      "Drag-and-drop UX polish and responsiveness",
+      "Markdown output accuracy (GitHub-compatible)",
+      "Section variety and customization depth",
+      "Theme system quality",
+      "Template gallery and community features",
+      "Code architecture and component design",
     ],
-    variantGroup: "tooling-snippets",
+    variantGroup: "frontend-readme-studio",
   },
-  // ─── AGENTIC ────────────────────────────────────────────────────────────────
+  // ─── LIVE Q&A PLATFORM ──────────────────────────────────────────────────────
   {
-    title: "Autonomous Code Migration Agent",
-    slug: "autonomous-code-migration-agent",
-    category: "agentic",
-    difficulty: 5,
-    overview: `Build an AI agent that autonomously migrates code from one framework/language to another. For example, migrating a React class component to a functional component with hooks, or converting a Python Flask API to FastAPI.
+    title: "Live Q&A Platform",
+    slug: "live-qa-platform",
+    category: "full-stack",
+    difficulty: 3,
+    overview: `Build a real-time Q&A platform like Slido where audience members can submit questions, upvote existing ones, and presenters can moderate and answer. Perfect for conferences, all-hands meetings, classrooms, and webinars.
 
-The agent should analyze the input code, plan the migration steps, execute the transformation, and verify the output. Users can review and approve each step before final commit. The system should maintain context across multiple files and handle common migration patterns.
+The audience joins a session via a code or QR link. Questions appear in real-time — upvote to push popular questions to the top. Presenters can mark questions as answered, pin important ones, hide inappropriate content, and toggle anonymous mode. A live results screen shows the most popular questions with animated vote counters.
 
-This is a complex agentic workflow — the AI must understand the source and target paradigms deeply and produce correct, idiomatic output code.`,
+Include moderation tools (block words, require approval), a \"slow mode\" for question submission rate limiting, and a presenter dashboard with analytics (questions per minute, top categories, response rate). Export the Q&A session as a CSV or PDF report.`,
     requirements: [
-      "File upload or repo URL input for source code",
-      "Framework/language migration roadmap generation",
-      "Step-by-step migration with AI-driven transformation per file",
-      "Side-by-side diff view for review and approval",
-      "Automated verification (lint, compile, basic tests)",
-      "Support 5+ migration paths (React class→hooks, JS→TS, Flask→FastAPI, Express→NestJS, jQuery→React)",
-      "Migration progress tracking with rollback per file",
-      "Export migration as patches or a new repo branch",
+      "Create Q&A sessions with unique join codes and optional passwords",
+      "Submit questions with optional anonymous mode",
+      "Real-time upvoting — questions sort by popularity automatically",
+      "Presenter moderation: answer, pin, hide, mark as answered",
+      "Live results/projector screen with animated vote counters",
+      "Mobile-friendly submission form with minimal friction",
+      "Word filtering and rate limiting for spam prevention",
+      "Session analytics dashboard for presenters",
     ],
     constraints: [
-      "Must preserve code comments and formatting",
-      "Each migration step must be independently reviewable",
-      "Generate migration report with statistics",
-      "Handle repos up to 100 files",
+      "Support 1,000+ concurrent users in a single session",
+      "Question list must update within 500ms of new votes/submissions",
+      "Anonymous questions must not reveal identity to anyone (including presenters)",
+      "Session data must persist for 30 days after event end",
     ],
     bonusFeatures: [
-      "Automated PR creation on GitHub",
-      "Dependency update detection",
-      "Migration cost estimation (time + complexity)",
+      "Reactions (applause, laugh, surprise) on questions",
+      "Export Q&A as CSV, PDF, or embeddable widget",
+      "Custom branding for enterprise events",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with agent workflow explanation",
+      "ARCHITECTURE.md with real-time architecture and moderation flow",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Migration accuracy and code quality",
-      "Agent workflow design and reliability",
-      "Diff review UX",
-      "Support for multiple migration paths",
-      "Verification step robustness",
-      "Architecture and extensibility to new migrations",
+      "Real-time update performance under load",
+      "Moderation tools completeness and UX",
+      "Mobile submission experience",
+      "Presenter dashboard quality and analytics",
+      "Anonymity guarantees and privacy implementation",
+      "Code architecture, security, and testing",
     ],
-    variantGroup: "agentic-migration",
+    variantGroup: "full-stack-qa",
   },
-  // ─── OCR ────────────────────────────────────────────────────────────────────
+  // ─── SPEED TEST VISUALIZER ─────────────────────────────────────────────────
   {
-    title: "Document OCR & Data Extraction Pipeline",
-    slug: "document-ocr-extraction",
-    category: "ocr",
-    difficulty: 4,
-    overview: `Build a document processing pipeline that extracts text and structured data from uploaded images and PDFs using OCR. The system should handle scanned documents, photos of documents, and digital PDFs with varied layouts.
-
-Use Tesseract.js or a cloud OCR API to extract text, then apply AI-powered post-processing to extract structured fields (names, dates, amounts, invoice numbers) based on document type templates. Provide a web-based document viewer with overlaid extracted text.
-
-Focus on extraction accuracy, handling of low-quality images, and a clean UI for reviewing and correcting extracted data.`,
-    requirements: [
-      "Upload images (JPG, PNG) and PDFs for OCR processing",
-      "Automatic language detection and multi-language OCR support",
-      "AI-powered field extraction for invoices, receipts, ID cards, and resumes",
-      "Document viewer with overlaid OCR text highlighting",
-      "Review and correct interface for extracted fields",
-      "Template system for custom document types",
-      "Batch processing with progress tracking",
-      "Export extracted data as JSON, CSV, or Excel",
-    ],
-    constraints: [
-      "Handle documents up to 20 pages each",
-      "Support low-quality images (dirt, angle, low light)",
-      "Extraction must complete within 30 seconds for 5-page docs",
-      "Confidence scores for each extracted field",
-    ],
-    bonusFeatures: [
-      "Auto-rotation and deskew correction",
-      "Table extraction from documents",
-      "Document classification (invoice, receipt, contract, etc.)",
-    ],
-    deliverables: [
-      "Git repository with full source code",
-      "Live deployment URL",
-      "ARCHITECTURE.md with OCR pipeline explanation",
-      "AI declaration and prompts/ folder",
-    ],
-    evaluationCriteria: [
-      "OCR accuracy on varied document types",
-      "Field extraction precision and recall",
-      "Document viewer and correction UX",
-      "Batch processing efficiency",
-      "Template system flexibility",
-      "Code quality and testing",
-    ],
-    variantGroup: "ocr-document",
-  },
-  // ─── MONITORING ─────────────────────────────────────────────────────────────
-  {
-    title: "Application Performance Monitor (APM)",
-    slug: "application-performance-monitor",
-    category: "monitoring",
-    difficulty: 4,
-    overview: `Build a lightweight Application Performance Monitoring (APM) dashboard that tracks request metrics, error rates, and system resources. Deploy a small agent (or SDK) that reports metrics from a sample application to the monitoring server.
-
-The dashboard should display real-time and historical metrics: request throughput, latency percentiles (p50, p95, p99), error rates, CPU/memory usage, and endpoint-level breakdowns. Set up alert rules that trigger when metrics exceed thresholds.
-
-Focus on clean, actionable visualizations and a simple setup process. The agent should be easy to integrate — just a few lines of code.`,
-    requirements: [
-      "Agent/sdk that reports request metrics and system resources",
-      "Real-time dashboard with auto-refreshing charts",
-      "Latency percentile tracking (p50, p95, p99, p99.9)",
-      "Endpoint-level breakdown with status codes",
-      "Error tracking with stack trace capture and grouping",
-      "Alert rule configuration (email, webhook notifications)",
-      "Time range selector with granularity adjustment",
-      "Service map showing dependencies between services",
-    ],
-    constraints: [
-      "Agent must add less than 5ms overhead per request",
-      "Metrics data stored for 30 days at full resolution",
-      "Dashboard must handle 10+ services simultaneously",
-      "Alert evaluation must complete in under 10 seconds",
-    ],
-    bonusFeatures: [
-      "Distributed tracing with span visualization",
-      "Custom metric reporting via SDK API",
-      "Anomaly detection using statistical models",
-    ],
-    deliverables: [
-      "Git repository with full source code",
-      "Live deployment URL",
-      "ARCHITECTURE.md with monitoring approach",
-      "AI declaration and prompts/ folder",
-    ],
-    evaluationCriteria: [
-      "Dashboard visualization quality and clarity",
-      "Agent performance overhead",
-      "Alert rule implementation and notification",
-      "Real-time update mechanism",
-      "Data retention and query performance",
-      "Code quality and documentation",
-    ],
-    variantGroup: "monitoring-apm",
-  },
-  // ─── AI UTILITIES ───────────────────────────────────────────────────────────
-  {
-    title: "Prompt Engineering Playground",
-    slug: "prompt-engineering-playground",
-    category: "ai-utilities",
+    title: "Speed Test Visualizer",
+    slug: "speed-test-visualizer",
+    category: "frontend",
     difficulty: 2,
-    overview: `Build a prompt engineering playground where users can write prompts, test them against multiple LLMs (OpenAI, Claude, Gemini, local models via Ollama), compare responses side-by-side, and iterate on prompt quality.
+    overview: `Build a beautiful internet speed test tool like Fast.com but with memory — it tracks your speed history and visualizes it with stunning charts. Measure download speed, upload speed, and ping/latency with a single click.
 
-This is a developer tool for prompt engineers. Include features like prompt templates with variables, system prompt management, response history, token counting, and export. The comparison view should highlight differences between model responses.
+The main screen shows a large animated speed gauge that fills up as the test runs, with real-time speed readout. After the test, results are saved locally (IndexedDB) and displayed on history charts — line charts showing speed over time (daily, weekly, monthly views), ISP comparison, time-of-day analysis, and reliability scoring.
 
-Focus on the comparison experience — users should easily see which model and prompt variation produces the best result for their use case.`,
+Make the test itself visually engaging: particles flowing during download test, pulse animations during ping test, and a satisfying completion animation with results summary. Include a shareable speed test result card.`,
     requirements: [
-      "Prompt editor with syntax highlighting for variables {{var}}",
-      "Multi-model support (OpenAI, Claude, Gemini, Ollama)",
-      "Side-by-side response comparison (2-4 models)",
-      "Prompt template library with version history",
-      "Token counter and cost estimator per model",
-      "Response history with search and filtering",
-      "System prompt configuration presets",
-      "Export prompts and responses as markdown/JSON",
+      "One-click internet speed test measuring download, upload, and ping/latency",
+      "Animated speed gauge with real-time readout during test",
+      "History tracking with IndexedDB local storage",
+      "Line charts for speed over time with daily/weekly/monthly granularity",
+      "ISP comparison showing your speed vs. average for your provider",
+      "Time-of-day analysis showing peak performance hours",
+      "Test result card with animated reveal (shareable as image)",
+      "Multiple test server selection or auto-best-ping detection",
     ],
     constraints: [
-      "API calls must be cancellable",
-      "Support streaming responses where available",
-      "Token counts must be accurate per model's tokenizer",
-      "Prompt history stored locally and optionally synced",
+      "Speed test must not use more than 100MB of data per test",
+      "History must survive browser restarts (IndexedDB persistence)",
+      "Charts must render smoothly with 1+ year of daily data points",
+      "Test must work within browser constraints (fetch API, no plugins)",
     ],
     bonusFeatures: [
-      "Prompt chaining (output of one prompt → input of next)",
-      "A/B test results visualization",
-      "Custom model endpoint configuration",
+      "Ping/jitter test with real-time graph",
+      "Background periodic testing with notification on speed drops",
+      "Export history as CSV for data analysis",
     ],
     deliverables: [
       "Git repository with full source code",
       "Live deployment URL",
-      "ARCHITECTURE.md with multi-model integration",
+      "ARCHITECTURE.md with speed test methodology and data storage approach",
       "AI declaration and prompts/ folder",
     ],
     evaluationCriteria: [
-      "Multi-model integration quality",
-      "Comparison UX and usefulness",
-      "Prompt editor features and usability",
-      "Token counting accuracy",
-      "History management and search",
-      "Code quality and testing",
+      "Speed test accuracy and methodology",
+      "Gauge and visualization quality and animations",
+      "History tracking and chart implementations",
+      "Local storage reliability and data management",
+      "Shareable result card implementation",
+      "Code architecture and performance optimization",
     ],
-    variantGroup: "ai-utilities-prompt",
+    variantGroup: "frontend-speedtest",
+  },
+  // ─── LINK PREVIEW API ───────────────────────────────────────────────────────
+  {
+    title: "Link Preview API",
+    slug: "link-preview-api",
+    category: "full-stack",
+    difficulty: 2,
+    overview: `Build a service that generates rich Open Graph preview cards for any URL. Paste a URL, and instantly see a beautiful preview card with the page title, description, image, and metadata — just like how links appear when shared on Twitter, Slack, or WhatsApp.
+
+The app has a clean UI where users paste URLs and see previews stack up. Each preview card can be saved to collections, tagged, and searched. But the real power is the API — other developers can hit your API endpoint with a URL parameter and get back structured OG metadata as JSON or an HTML embed snippet.
+
+Include a browser bookmarklet for quick previews, history of all previews with full-text search, and an API dashboard with usage stats and an API key system. The OG extraction handles edge cases: missing OG tags (fall back to <title>, first <h1>, first image), JavaScript-rendered pages (use puppeteer or a headless browser service), and redirect chains.`,
+    requirements: [
+      "Paste any URL → instant rich preview card with title, description, image, domain, favicon",
+      "Preview history with search, collections, and tagging",
+      "Public API endpoint that returns structured OG metadata as JSON",
+      "API key authentication with usage tracking dashboard",
+      "HTML embed snippet generator for embedding previews on any site",
+      "Browser bookmarklet for quick URL preview from any page",
+      "Fallback extraction when OG tags are missing (title, h1, first image)",
+      "Support for Twitter Card metadata in addition to Open Graph",
+    ],
+    constraints: [
+      "API responses must return in under 2 seconds for cached URLs",
+      "Handle redirect chains up to 5 hops",
+      "Rate limit API to 60 requests per minute per key",
+      "Cache previews for minimum 1 hour (configurable TTL)",
+    ],
+    bonusFeatures: [
+      "Screenshot preview of the page alongside OG card",
+      "Batch URL preview (upload CSV of URLs)",
+      "Slack/Discord bot integration for previews",
+    ],
+    deliverables: [
+      "Git repository with full source code",
+      "Live deployment URL",
+      "ARCHITECTURE.md with OG extraction pipeline and API design",
+      "AI declaration and prompts/ folder",
+    ],
+    evaluationCriteria: [
+      "Preview card rendering accuracy and visual quality",
+      "API design, documentation, and developer experience",
+      "Edge case handling (missing tags, redirects, JS pages)",
+      "History management and search functionality",
+      "API key system and usage dashboard",
+      "Code architecture and caching strategy",
+    ],
+    variantGroup: "full-stack-linkpreview",
   },
 ]
 
