@@ -33,6 +33,7 @@ interface EvaluationFormProps {
   submissionId: string
   onComplete?: () => void
   initialData?: {
+    id?: string
     executionScore?: number
     architectureScore?: number
     thoughtProcessScore?: number
@@ -134,8 +135,9 @@ export default function EvaluationForm({ submissionId, onComplete, initialData }
         notes: notes || null,
       }
 
-      const url = initialData
-        ? `/api/admin/evaluations/${submissionId}`
+      const evaluationId = initialData?.id
+      const url = evaluationId
+        ? `/api/admin/evaluations/${evaluationId}`
         : "/api/admin/evaluations"
 
       const method = initialData ? "PUT" : "POST"

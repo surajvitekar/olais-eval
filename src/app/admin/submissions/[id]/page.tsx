@@ -354,6 +354,7 @@ export default function SubmissionDetailPage() {
           <EvaluationForm
             submissionId={submission.id}
             initialData={myEval ? {
+              id: myEval.id,
               executionScore: myEval.executionScore,
               architectureScore: myEval.architectureScore,
               thoughtProcessScore: myEval.thoughtProcessScore,
