@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Card,
   CardHeader,
@@ -121,7 +122,21 @@ export default function AdminSubmissionsPage() {
       <Card className="mb-6">
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-4">
-            <div className="w-[200px]">
+            <div className="flex-1 min-w-[180px]">
+              <Input
+                placeholder="Search by problem title..."
+                value={problemFilter}
+                onChange={(e) => { setProblemFilter(e.target.value); setPage(1) }}
+              />
+            </div>
+            <div className="flex-1 min-w-[180px]">
+              <Input
+                placeholder="Search by candidate name or email..."
+                value={candidateFilter}
+                onChange={(e) => { setCandidateFilter(e.target.value); setPage(1) }}
+              />
+            </div>
+            <div className="w-[180px]">
               <Select
                 value={statusFilter}
                 onValueChange={(v) => { if (v !== null) { setStatusFilter(v); setPage(1) } }}
@@ -136,7 +151,6 @@ export default function AdminSubmissionsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1 min-w-[200px]" />
           </div>
         </CardContent>
       </Card>
