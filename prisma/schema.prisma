@@ -1,0 +1,240 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  CANDIDATE
+}
+
+enum UserStatus {
+  REGISTERED
+  ASSESSMENT_COMPLETED
+  PROBLEM_ASSIGNED
+  IN_PROGRESS
+  SUBMITTED
+  UNDER_REVIEW
+  SHORTLISTED
+  REJECTED
+  SELECTED
+}
+
+enum AssessmentCategory {
+  FRONTEND
+  BACKEND
+  PYTHON
+  AI_ML
+  API
+  DATABASE
+  DEVOPS
+  UI_UX
+  AUTOMATION
+  SYSTEM_DESIGN
+}
+
+enum QuestionType {
+  SELF_RATING
+  MULTIPLE_CHOICE
+  EXPERIENCE
+  PROJECT_FAMILIARITY
+  AI_USAGE
+}
+
+enum ProblemStatus {
+  ASSIGNED
+  IN_PROGRESS
+  SUBMITTED
+}
+
+enum EvaluationStatus {
+  PENDING
+  COMPLETED
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  name        String?
+  passwordHash String?
+  role        UserRole   @default(CANDIDATE)
+  phone       String?
+  college     String?
+  resumeUrl   String?
+  githubUrl   String?
+  linkedinUrl String?
+  avatarUrl   String?
+  status      UserStatus @default(REGISTERED)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  invites           Invite[]           @relation("CreatedInvites")
+  assessmentResponses AssessmentResponse[]
+  skillProfiles     SkillProfile[]
+  assignedProblems  AssignedProblem[]
+  submissions       Submission[]
+  evaluations       Evaluation[]
+  leaderboardEntries LeaderboardEntry[]
+  auditLogs         AuditLog[]
+}
+
+model Invite {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  maxUses   Int      @default(1)
+  usedCount Int      @default(0)
+  expiresAt DateTime
+  createdBy String
+  createdAt DateTime @default(now())
+
+  creator User @relation("CreatedInvites", fields: [createdBy], references: [id])
+}
+
+model AssessmentQuestion {
+  id            String             @id @default(cuid())
+  category      AssessmentCategory
+  questionType  QuestionType
+  questionText  String
+  options       Json
+  weight        Float              @default(1.0)
+  displayOrder  Int
+
+  responses AssessmentResponse[]
+}
+
+model AssessmentResponse {
+  id          String   @id @default(cuid())
+  userId      String
+  questionId  String
+  responseValue Json
+  createdAt   DateTime @default(now())
+
+  user     User                @relation(fields: [userId], references: [id])
+  question AssessmentQuestion  @relation(fields: [questionId], references: [id])
+
+  @@unique([userId, questionId])
+}
+
+model SkillProfile {
+  id          String   @id @default(cuid())
+  userId      String
+  scores      Json
+  topSkills   Json
+  generatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ProblemTemplate {
+  id                 String   @id @default(cuid())
+  title              String
+  slug               String   @unique
+  category           String
+  difficulty         Int
+  overview           String
+  requirements       Json
+  constraints        Json
+  bonusFeatures      Json
+  deliverables       Json
+  evaluationCriteria Json
+  isActive           Boolean  @default(true)
+  variantGroup       String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  assignedProblems AssignedProblem[]
+}
+
+model AssignedProblem {
+  id                 String        @id @default(cuid())
+  userId             String
+  problemTemplateId  String
+  status             ProblemStatus @default(ASSIGNED)
+  variantConfig      Json
+  assignedAt         DateTime      @default(now())
+  deadline           DateTime?
+
+  user     User            @relation(fields: [userId], references: [id])
+  template ProblemTemplate @relation(fields: [problemTemplateId], references: [id])
+
+  submissions Submission[]
+}
+
+model Submission {
+  id                   String   @id @default(cuid())
+  userId               String
+  assignedProblemId    String
+  gitUrl               String?
+  liveUrl              String?
+  architectureNotes    String?
+  aiUsageExplanation   String?
+  videoUrl             String?
+  screenshots          Json
+  submittedAt          DateTime @default(now())
+  elapsedSeconds       Int?
+
+  user           User             @relation(fields: [userId], references: [id])
+  assignedProblem AssignedProblem @relation(fields: [assignedProblemId], references: [id])
+
+  evaluations Evaluation[]
+
+  @@unique([userId, assignedProblemId])
+}
+
+model Evaluation {
+  id                    String           @id @default(cuid())
+  submissionId          String
+  evaluatorId           String
+  executionScore        Int
+  thoughtProcessScore   Int
+  architectureScore     Int
+  uiUxScore             Int
+  aiUsageScore          Int
+  deploymentScore       Int
+  codeOrganizationScore Int
+  communicationScore    Int
+  totalScore            Float
+  notes                 String?
+  status                EvaluationStatus @default(PENDING)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  submission Submission @relation(fields: [submissionId], references: [id])
+  evaluator  User       @relation(fields: [evaluatorId], references: [id])
+}
+
+model LeaderboardEntry {
+  id              String   @id @default(cuid())
+  userId          String
+  cycleId         String
+  submissionCount Int      @default(0)
+  fastestTime     Int?
+  status          String   @default("active")
+  hidden          Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, cycleId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  metadata  Json
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
