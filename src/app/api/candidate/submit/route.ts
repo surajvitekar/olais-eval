@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 const submitSchema = z.object({
   assignedProblemId: z.string().min(1),
@@ -124,6 +125,14 @@ export async function POST(request: Request) {
 
       return submission
     })
+
+    // Audit: submission created
+    await logAudit("submission.create", {
+      submissionId: result.id,
+      assignedProblemId,
+      gitUrl,
+      elapsedSeconds,
+    }, session.user.id)
 
     return NextResponse.json({
       message: "Submission successful",

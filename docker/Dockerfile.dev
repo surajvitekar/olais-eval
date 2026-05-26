@@ -1,0 +1,27 @@
+# ─── Development Stage ────────────────────────────────────────────────────────
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache openssl
+
+# Copy package files first for layer caching
+COPY package.json package-lock.json* ./
+RUN npm ci --frozen-lockfile
+
+# Copy Prisma schema and generate client
+COPY prisma/ ./prisma/
+RUN npx prisma generate
+
+# Copy remaining application source (for hot reload via volume mount)
+COPY . .
+
+EXPOSE 3000
+
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME="0.0.0.0"
+ENV WATCHPACK_POLLING=true
+
+CMD ["npm", "run", "dev"]

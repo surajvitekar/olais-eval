@@ -1,0 +1,51 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Next.js
+.next
+
+# Environment
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Version control
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist
+build
+out
+
+# Logs
+*.log
+npm-debug.log*
+
+# Prisma
+prisma/migrations
+prisma/seed.ts
+
+# Test
+coverage
+
+# Docker
+docker
+
+# Documentation
+docs
+*.md
+!README.md

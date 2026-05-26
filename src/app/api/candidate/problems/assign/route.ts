@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { assignProblems } from "@/lib/problem-assigner"
+import { logAudit } from "@/lib/audit"
 
 export async function POST() {
   try {
@@ -54,6 +55,12 @@ export async function POST() {
         data: { status: "PROBLEM_ASSIGNED" },
       })
 
+      // Audit: problem assigned
+      await logAudit("problem.assign", {
+        assignmentId: assignment.id,
+        problemTemplateId: needed[0].id,
+      }, session.user.id)
+
       return NextResponse.json({
         message: "Problem assigned",
         assignments: [assignment],
@@ -90,6 +97,15 @@ export async function POST() {
       where: { id: session.user.id },
       data: { status: "PROBLEM_ASSIGNED" },
     })
+
+    // Audit: problems assigned (batch)
+    await logAudit("problem.assign", {
+      assignments: assignments.map(a => ({
+        id: a.id,
+        problemTemplateId: a.problemTemplateId,
+      })),
+      count: assignments.length,
+    }, session.user.id)
 
     return NextResponse.json({
       message: `Assigned ${assignments.length} problem(s)`,

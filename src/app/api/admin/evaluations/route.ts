@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 const evaluationCreateSchema = z.object({
   submissionId: z.string().min(1),
@@ -76,18 +77,12 @@ export async function POST(request: Request) {
       },
     })
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: "EVALUATION_CREATED",
-        metadata: {
-          evaluationId: evaluation.id,
-          submissionId: data.submissionId,
-          totalScore: data.totalScore,
-        },
-      },
-    })
+    // Audit: evaluation created
+    await logAudit("evaluation.create", {
+      evaluationId: evaluation.id,
+      submissionId: data.submissionId,
+      totalScore: data.totalScore,
+    }, session.user.id)
 
     return NextResponse.json({ evaluation }, { status: 201 })
   } catch (error) {

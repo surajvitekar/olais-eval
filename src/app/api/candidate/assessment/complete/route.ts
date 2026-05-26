@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { scoreAssessment } from "@/lib/scoring"
+import { logAudit } from "@/lib/audit"
 
 export async function POST() {
   try {
@@ -68,6 +69,12 @@ export async function POST() {
 
       return newProfile
     })
+
+    // Audit: assessment completed
+    await logAudit("assessment.complete", {
+      scores: profile.scores,
+      topSkills: profile.topSkills,
+    }, session.user.id)
 
     return NextResponse.json({
       profile: {

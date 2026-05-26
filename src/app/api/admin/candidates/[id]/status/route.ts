@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 // Valid status transitions
 const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -92,19 +93,13 @@ export async function PUT(
       },
     })
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: "STATUS_CHANGED",
-        metadata: {
-          targetUserId: id,
-          fromStatus: currentStatus,
-          toStatus: newStatus,
-          reason: parsed.data.reason || null,
-        },
-      },
-    })
+    // Audit: candidate status changed
+    await logAudit("candidate.status_change", {
+      targetUserId: id,
+      fromStatus: currentStatus,
+      toStatus: newStatus,
+      reason: parsed.data.reason || null,
+    }, session.user.id)
 
     return NextResponse.json({
       message: `Status updated from ${currentStatus} to ${newStatus}`,

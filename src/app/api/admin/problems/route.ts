@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 const problemCreateSchema = z.object({
   title: z.string().min(3).max(200),
@@ -119,6 +120,14 @@ export async function POST(request: Request) {
         variantGroup: parsed.data.variantGroup ?? null,
       },
     })
+
+    // Audit: problem created
+    await logAudit("problem.create", {
+      problemId: problem.id,
+      title: problem.title,
+      slug: problem.slug,
+      category: problem.category,
+    }, session.user.id)
 
     return NextResponse.json({ problem }, { status: 201 })
   } catch (error) {

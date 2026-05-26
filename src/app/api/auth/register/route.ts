@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { registerSchema } from "@/lib/validations/auth"
 import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit"
+import { logAudit } from "@/lib/audit"
 
 export async function POST(request: Request) {
   try {
@@ -91,6 +92,12 @@ export async function POST(request: Request) {
 
       return newUser
     })
+
+    // Audit: user registration
+    await logAudit("user.register", {
+      email: user.email,
+      inviteCode,
+    }, user.id)
 
     return NextResponse.json(
       {

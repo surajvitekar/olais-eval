@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { inviteCreateSchema } from "@/lib/validations/auth"
 import crypto from "crypto"
+import { logAudit } from "@/lib/audit"
 
 function generateUUID(): string {
   return crypto.randomUUID()
@@ -69,6 +70,13 @@ export async function POST(request: Request) {
       }
       return created
     })
+
+    // Audit: invites created
+    await logAudit("invite.create", {
+      count: invites.length,
+      maxUses,
+      expiryDays,
+    }, session.user.id)
 
     return NextResponse.json(
       {

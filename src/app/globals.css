@@ -128,3 +128,154 @@
     @apply font-sans;
   }
 }
+
+/* ─── Terminal-Inspired Design Accents ───────────────────────────────────── */
+
+/* Green glow on buttons */
+.dark button:not(.no-glow):is(
+  [class*="bg-emerald"],
+  [class*="bg-green"],
+  .btn-primary,
+  [class*="bg-primary"]
+) {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), 0 0 40px rgba(16, 185, 129, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.dark button:not(.no-glow):is(
+  [class*="bg-emerald"],
+  [class*="bg-green"],
+  .btn-primary,
+  [class*="bg-primary"]
+):hover {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.25), 0 0 60px rgba(16, 185, 129, 0.08);
+}
+
+/* Monospace for code elements */
+code,
+kbd,
+samp,
+pre,
+.font-mono,
+[class*="font-mono"] {
+  font-family: var(--font-mono-geist), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Subtle grid background pattern */
+.dark .bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Green card borders on hover */
+.dark .card,
+.dark [class*="card"]:not([class*="no-border"]) {
+  transition: border-color 0.3s ease;
+}
+
+.dark .card:hover,
+.dark [class*="card"]:not([class*="no-border"]):hover {
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+/* Scan-line overlay */
+.scan-line {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(16, 185, 129, 0.015) 2px,
+    rgba(16, 185, 129, 0.015) 4px
+  );
+}
+
+/* Cursor blink animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Focus ring with green tint */
+.dark *:focus-visible {
+  outline-color: rgba(16, 185, 129, 0.5);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection color */
+.dark ::selection {
+  background: rgba(16, 185, 129, 0.2);
+  color: inherit;
+}
+
+/* ─── Responsive Table Styles ────────────────────────────────────────────── */
+.table-container {
+  @apply overflow-x-auto -mx-4 sm:mx-0;
+}
+
+.table-container table {
+  @apply min-w-full;
+}
+
+.table-container th,
+.table-container td {
+  @apply whitespace-nowrap px-3 py-2.5 text-sm;
+}
+
+.table-container th:first-child,
+.table-container td:first-child {
+  @apply pl-4 sm:pl-3;
+}
+
+.table-container th:last-child,
+.table-container td:last-child {
+  @apply pr-4 sm:pr-3;
+}
+
+/* Full-width form inputs on mobile */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea,
+  [role="combobox"] {
+    @apply w-full;
+  }
+
+  .container {
+    @apply px-3;
+  }
+}
+
+/* 44px touch targets */
+.mobile-touch-target {
+  @apply min-h-[44px] min-w-[44px] flex items-center;
+}
+
+/* Focus-visible for accessibility */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-ring;
+}

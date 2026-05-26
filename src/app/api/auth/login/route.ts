@@ -4,6 +4,7 @@ import { signIn } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { loginSchema } from "@/lib/validations/auth"
 import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit"
+import { logAudit } from "@/lib/audit"
 
 export async function POST(request: Request) {
   try {
@@ -61,6 +62,11 @@ export async function POST(request: Request) {
     } catch {
       // signIn throws on failure but we handle it
     }
+
+    // Audit: user login
+    await logAudit("user.login", {
+      email: user.email,
+    }, user.id)
 
     return NextResponse.json({
       user: {
