@@ -26,16 +26,16 @@ export async function assignProblems(userId: string) {
 
   // 2. Map assessment categories (e.g., FRONTEND, BACKEND) to problem categories (e.g., full-stack, apis)
   const categoryMap: Record<string, string[]> = {
-    FRONTEND: ["full-stack"],
-    BACKEND: ["full-stack", "apis"],
-    PYTHON: ["automation", "data", "ai-workflows"],
-    AI_ML: ["ai-workflows", "ai-utilities", "agentic"],
-    API: ["apis", "full-stack"],
-    DATABASE: ["data", "full-stack"],
-    DEVOPS: ["monitoring", "automation"],
-    UI_UX: ["dashboards", "full-stack"],
-    AUTOMATION: ["automation", "tooling"],
-    SYSTEM_DESIGN: ["apis", "monitoring", "data"],
+    FRONTEND: ["frontend", "full-stack"],
+    BACKEND: ["full-stack"],
+    PYTHON: ["automation", "data"],
+    AI_ML: ["full-stack", "frontend"],
+    API: ["full-stack"],
+    DATABASE: ["full-stack"],
+    DEVOPS: ["full-stack"],
+    UI_UX: ["frontend", "full-stack"],
+    AUTOMATION: ["automation", "frontend"],
+    SYSTEM_DESIGN: ["full-stack"],
   }
 
   // Collect all matching problem categories
