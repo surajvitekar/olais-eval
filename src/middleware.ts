@@ -11,6 +11,7 @@ const publicRoutes = [
   "/api/invite",
   "/api/leaderboard",
   "/api/auth",
+  "/INSTRUCTIONS.md",
 ]
 
 // Admin-only routes
@@ -45,7 +46,6 @@ export async function middleware(req: NextRequest) {
   // Admin route protection
   if (adminRoutes.some((route) => pathname.startsWith(route))) {
     if (session.user.role !== "ADMIN") {
-      // Redirect non-admin users to their dashboard
       return NextResponse.redirect(new URL("/dashboard", req.url))
     }
   }
@@ -53,9 +53,12 @@ export async function middleware(req: NextRequest) {
   // Candidate-specific protections
   if (
     session.user.role === "CANDIDATE" &&
-    (pathname.startsWith("/assessment") || pathname.startsWith("/problems"))
+    (pathname.startsWith("/assessment") ||
+     pathname.startsWith("/problems") ||
+     pathname.startsWith("/submissions") ||
+     pathname.startsWith("/instructions") ||
+     pathname.startsWith("/dashboard"))
   ) {
-    // Allow access - these are candidate-facing routes
     return NextResponse.next()
   }
 
