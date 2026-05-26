@@ -1,13 +1,48 @@
-# ─── Docker Ignore ──────────────────────────────────────────────────────────
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build output
+.next
+out
+build
+dist
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Version control
 .git
 .gitignore
-node_modules
-.next
-.env
-.env.production
-.env.local
-*.md
-docs
+.gitattributes
+
+# IDE and editor files
 .vscode
 .idea
-*.log
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs
+*.md
+README.md
+LICENSE
+
+# Docker
+docker
+docker-compose*.yml
+
+# Coverage
+coverage
+
+# Misc
+*.tsbuildinfo
+next-env.d.ts
