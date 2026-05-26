@@ -17,7 +17,7 @@ const publicRoutes = [
 // Admin-only routes
 const adminRoutes = ["/admin"]
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Allow Next.js internal routes
