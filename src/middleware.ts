@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { auth } from "./lib/auth"
 
 // Public routes that don't require auth
 const publicRoutes = [
@@ -32,21 +33,31 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Check for session token (JWT in cookies)
-  const sessionToken =
-    req.cookies.get("next-auth.session-token")?.value ||
-    req.cookies.get("__Secure-next-auth.session-token")?.value
+  // Check authentication
+  const session = await auth()
 
-  if (!sessionToken) {
-    // Not authenticated — redirect to login
+  if (!session?.user) {
     const loginUrl = new URL("/login", req.url)
     loginUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  // NOTE: Full auth verification (JWT decode + role check) will be added
-  // in Cycle 02 after auth.ts is configured with NextAuth.
-  // For now, admin routes are protected by the session check above.
+  // Admin route protection
+  if (adminRoutes.some((route) => pathname.startsWith(route))) {
+    if (session.user.role !== "ADMIN") {
+      // Redirect non-admin users to their dashboard
+      return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
+  }
+
+  // Candidate-specific protections
+  if (
+    session.user.role === "CANDIDATE" &&
+    (pathname.startsWith("/assessment") || pathname.startsWith("/problems"))
+  ) {
+    // Allow access - these are candidate-facing routes
+    return NextResponse.next()
+  }
 
   return NextResponse.next()
 }
