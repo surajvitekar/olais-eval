@@ -10,8 +10,9 @@ RUN apk add --no-cache openssl
 COPY package.json package-lock.json* ./
 RUN npm ci --frozen-lockfile
 
-# Copy Prisma schema and generate client
+# Copy Prisma schema and config, generate client
 COPY prisma/ ./prisma/
+COPY prisma.config.ts ./
 RUN npx prisma generate
 
 # Copy application source
