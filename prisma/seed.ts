@@ -247,6 +247,136 @@ const assessmentQuestions = [
 ]
 
 const problemTemplates = [
+  // ─── PERSONAL PORTFOLIO ─────────────────────────────────────────────────────
+  {
+    title: "Personal Portfolio",
+    slug: "personal-portfolio",
+    category: "frontend",
+    difficulty: 1,
+    overview: `Build a personal portfolio website to showcase yourself, your skills, and your projects. This is a single-page website with smooth scrolling, a hero section, an about me section, a projects gallery, and a contact form.\n\nFocus on clean design, responsive layout (works on mobile and desktop), and thoughtful content presentation. Use any frontend stack you're comfortable with — vanilla HTML/CSS/JS, React, or any framework.\n\nThe goal is to demonstrate your ability to build a well-structured, visually appealing single-page application from scratch.`,
+    requirements: [
+      "Hero section with your name, tagline, and a call-to-action button",
+      "About section with a brief bio, skills list, and profile photo placeholder",
+      "Projects section with a grid of project cards (title, description, tech stack, links)",
+      "Contact section with a functional form (name, email, message fields)",
+      "Responsive design — works on mobile, tablet, and desktop screens",
+      "Smooth scrolling navigation with active section highlighting",
+    ],
+    constraints: [
+      "Must work without any backend (form can use a service like Formspree)",
+      "Page must load in under 3 seconds on a 3G connection",
+      "Must be a single HTML file or a simple multi-page structure",
+    ],
+    bonusFeatures: [
+      "Dark/light mode toggle with persisted preference",
+      "Animated skill progress bars or icon grid",
+      "Downloadable resume/CV button",
+    ],
+    deliverables: [
+      "Git repository with full source code",
+      "Live deployment URL (GitHub Pages, Vercel, or Netlify)",
+      "ARCHITECTURE.md explaining your design choices",
+      "AI declaration and prompts/ folder",
+    ],
+    evaluationCriteria: [
+      "Visual design quality and layout consistency",
+      "Responsive implementation — looks good on all screen sizes",
+      "Code organization and HTML semantics",
+      "Smooth scrolling and navigation UX",
+      "Form functionality and validation",
+      "Performance and loading speed",
+    ],
+    variantGroup: "frontend-fundamentals",
+  },
+  // ─── TODO MANAGER ───────────────────────────────────────────────────────────
+  {
+    title: "Todo Manager",
+    slug: "todo-manager",
+    category: "frontend",
+    difficulty: 1,
+    overview: `Build a fully-featured todo list application that helps users manage their daily tasks. Users can add, complete, delete, and organize tasks with priorities, due dates, and categories.\n\nThis classic project tests your understanding of CRUD operations, state management, local storage persistence, and clean UI design. Start with basic functionality and progressively add features: filtering, search, categories, and dark mode.`,
+    requirements: [
+      "Add new tasks with a title, optional description, and priority level (high/medium/low)",
+      "Mark tasks as complete/incomplete with a visual toggle",
+      "Delete tasks with a confirmation step",
+      "Filter tasks: All, Active, Completed, and by priority",
+      "Search tasks by title or description",
+      "Persist tasks in localStorage so they survive page refreshes",
+      "Show remaining task count (e.g., '5 tasks remaining')",
+      "Clean, minimal UI with a pleasant color scheme",
+    ],
+    constraints: [
+      "Must work entirely in the browser — no backend required",
+      "All data must persist in localStorage with graceful fallback",
+      "Must work offline after initial load (PWA behavior)",
+    ],
+    bonusFeatures: [
+      "Due dates with calendar picker and overdue highlighting",
+      "Categories/tags with color coding and filtering",
+      "Drag-and-drop reordering of tasks",
+      "Export/import tasks as JSON backup",
+    ],
+    deliverables: [
+      "Git repository with full source code",
+      "Live deployment URL",
+      "ARCHITECTURE.md with state management and data persistence explanation",
+      "AI declaration and prompts/ folder",
+    ],
+    evaluationCriteria: [
+      "Core CRUD functionality completeness and correctness",
+      "localStorage persistence reliability",
+      "UI/UX polish and responsive design",
+      "Filter and search implementation quality",
+      "Code organization and component structure",
+      "Edge case handling (empty states, long titles, special characters)",
+    ],
+    variantGroup: "frontend-fundamentals",
+  },
+  // ─── WEATHER DASHBOARD ──────────────────────────────────────────────────────
+  {
+    title: "Weather Dashboard",
+    slug: "weather-dashboard",
+    category: "frontend",
+    difficulty: 1,
+    overview: `Build a weather dashboard that shows current weather and a 5-day forecast for any city. Users search for a city, and the app displays temperature, humidity, wind speed, weather conditions, and a visual icon representing the weather.\n\nThis project teaches you to work with third-party APIs (OpenWeatherMap or WeatherAPI), handle async data fetching, loading states, and error states. The UI should be visually driven — weather conditions should be reflected in background colors, animations, and icons.`,
+    requirements: [
+      "Search for a city to see its current weather (temperature, conditions, humidity, wind speed)",
+      "Display a 5-day forecast with daily high/low temperatures and weather icons",
+      "Weather-appropriate visual themes (sunny = warm colors, rainy = cool blues, cloudy = muted tones)",
+      "Animated weather icons or illustrations (sun, clouds, rain, snow, thunder)",
+      "Loading states while fetching data",
+      "Graceful error handling for invalid city names and API failures",
+      "Recent searches dropdown or history for quick access",
+      "Responsive layout that works on mobile and desktop",
+    ],
+    constraints: [
+      "Use a free weather API (OpenWeatherMap free tier or WeatherAPI free tier)",
+      "API keys must be user-configurable or use a proxy endpoint",
+      "API calls must be debounced while typing (300ms delay)",
+      "Must handle cities with the same name in different countries",
+    ],
+    bonusFeatures: [
+      "Geolocation-based weather on first load (browser permission)",
+      "Hourly forecast for the next 24 hours with a scrollable timeline",
+      "Save favorite cities and show them as a dashboard grid",
+    ],
+    deliverables: [
+      "Git repository with full source code",
+      "Live deployment URL",
+      "ARCHITECTURE.md with API integration and state management approach",
+      "AI declaration and prompts/ folder",
+    ],
+    evaluationCriteria: [
+      "API integration correctness and error handling",
+      "Search UX — debouncing, history, autocomplete feel",
+      "Visual design quality — weather themes and animations",
+      "Forecast display quality and data richness",
+      "Responsive design and mobile experience",
+      "Code architecture and async data handling",
+    ],
+    variantGroup: "frontend-fundamentals",
+  },
+  // ─── EXISTING PROBLEMS ──────────────────────────────────────────────────────
   // ─── MULTIPLAYER PICTIONARY ──────────────────────────────────────────────────
   {
     title: "Multiplayer Pictionary",

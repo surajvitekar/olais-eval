@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { syncLeaderboardEntry } from "@/lib/leaderboard-sync"
 import { z } from "zod"
 import { logAudit } from "@/lib/audit"
 
@@ -16,6 +17,14 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   REJECTED: [],
   SELECTED: [],
 }
+
+// Statuses that should create/update a leaderboard entry
+const LEADERBOARD_TRACKED_STATUSES = new Set([
+  "SHORTLISTED",
+  "SELECTED",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+])
 
 const statusUpdateSchema = z.object({
   status: z.enum([
@@ -92,6 +101,11 @@ export async function PUT(
         updatedAt: true,
       },
     })
+
+    // Sync leaderboard if the new status should be tracked
+    if (LEADERBOARD_TRACKED_STATUSES.has(newStatus)) {
+      await syncLeaderboardEntry(id)
+    }
 
     // Audit: candidate status changed
     await logAudit("candidate.status_change", {

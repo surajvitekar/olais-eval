@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { inviteCreateSchema } from "@/lib/validations/auth"
 import crypto from "crypto"
 import { logAudit } from "@/lib/audit"
+import { sendInviteEmail } from "@/lib/email"
 
 function generateUUID(): string {
   return crypto.randomUUID()
@@ -51,10 +52,85 @@ export async function POST(request: Request) {
       )
     }
 
-    const { count, maxUses, expiryDays } = parsed.data
+    const { count, maxUses, expiryDays, candidates } = parsed.data
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + expiryDays)
 
+    // ─── Scenario A: Individual invites with candidate details ────────────────
+    if (candidates && candidates.length > 0) {
+      const results: {
+        code: string
+        candidateName?: string
+        candidateEmail: string
+        emailStatus: "sent" | "failed" | "skipped"
+        emailError?: string
+      }[] = []
+
+      for (const candidate of candidates) {
+        // Create invite
+        const invite = await prisma.invite.create({
+          data: {
+            code: generateUUID(),
+            candidateName: candidate.name || null,
+            candidateEmail: candidate.email,
+            maxUses,
+            expiresAt,
+            createdBy: session.user.id,
+          },
+        })
+
+        // Send email
+        try {
+          await sendInviteEmail({
+            to: candidate.email,
+            candidateName: candidate.name,
+            inviteCode: invite.code,
+            expiresAt,
+          })
+
+          // Mark as sent
+          await prisma.invite.update({
+            where: { id: invite.id },
+            data: { sentAt: new Date() },
+          })
+
+          results.push({
+            code: invite.code,
+            candidateName: candidate.name,
+            candidateEmail: candidate.email,
+            emailStatus: "sent",
+          })
+        } catch (emailErr) {
+          console.error(`Failed to send invite email to ${candidate.email}:`, emailErr)
+          results.push({
+            code: invite.code,
+            candidateName: candidate.name,
+            candidateEmail: candidate.email,
+            emailStatus: "failed",
+            emailError: emailErr instanceof Error ? emailErr.message : "Unknown error",
+          })
+        }
+      }
+
+      // Audit
+      await logAudit("invite.create", {
+        count: results.length,
+        sent: results.filter((r) => r.emailStatus === "sent").length,
+        failed: results.filter((r) => r.emailStatus === "failed").length,
+        maxUses,
+        expiryDays,
+      }, session.user.id)
+
+      return NextResponse.json(
+        {
+          message: `Created ${results.length} invite(s) — ${results.filter((r) => r.emailStatus === "sent").length} email(s) sent`,
+          invites: results,
+        },
+        { status: 201 }
+      )
+    }
+
+    // ─── Scenario B: Legacy batch (no candidates) ─────────────────────────────
     const invites = await prisma.$transaction(async (tx) => {
       const created = []
       for (let i = 0; i < count; i++) {
@@ -71,11 +147,12 @@ export async function POST(request: Request) {
       return created
     })
 
-    // Audit: invites created
+    // Audit
     await logAudit("invite.create", {
       count: invites.length,
       maxUses,
       expiryDays,
+      note: "batch (no email)",
     }, session.user.id)
 
     return NextResponse.json(

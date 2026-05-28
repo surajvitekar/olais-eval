@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   Menu,
   LogOut,
+  Mail,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
@@ -21,6 +22,7 @@ import { signOut } from "next-auth/react"
 const sidebarLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/candidates", label: "Candidates", icon: Users },
+  { href: "/admin/invites", label: "Invites", icon: Mail },
   { href: "/admin/submissions", label: "Submissions", icon: FileText },
   { href: "/admin/problems", label: "Problem Bank", icon: ClipboardCheck },
   { href: "/admin/leaderboard", label: "Leaderboard", icon: Trophy },

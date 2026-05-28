@@ -18,12 +18,19 @@ export const registerSchema = z.object({
   college: z.string().optional(),
 })
 
+export const inviteCandidateSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100).optional(),
+  email: z.string().email("Invalid email address"),
+})
+
 export const inviteCreateSchema = z.object({
   count: z.number().int().min(1).max(100).default(1),
   maxUses: z.number().int().min(1).max(10).default(1),
   expiryDays: z.number().int().min(1).max(365).default(30),
+  candidates: z.array(inviteCandidateSchema).optional(),
 })
 
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
 export type InviteCreateInput = z.infer<typeof inviteCreateSchema>
+export type InviteCandidateInput = z.infer<typeof inviteCandidateSchema>

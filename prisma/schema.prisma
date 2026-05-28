@@ -87,18 +87,23 @@ model User {
   evaluations       Evaluation[]
   leaderboardEntries LeaderboardEntry[]
   auditLogs         AuditLog[]
+  @@map("user")
 }
 
 model Invite {
-  id        String   @id @default(cuid())
-  code      String   @unique
-  maxUses   Int      @default(1)
-  usedCount Int      @default(0)
-  expiresAt DateTime
-  createdBy String
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  code          String   @unique
+  candidateName String?
+  candidateEmail String?
+  maxUses       Int      @default(1)
+  usedCount     Int      @default(0)
+  expiresAt     DateTime
+  sentAt        DateTime?
+  createdBy     String
+  createdAt     DateTime @default(now())
 
   creator User @relation("CreatedInvites", fields: [createdBy], references: [id])
+  @@map("invite")
 }
 
 model AssessmentQuestion {
@@ -111,6 +116,7 @@ model AssessmentQuestion {
   displayOrder  Int
 
   responses AssessmentResponse[]
+  @@map("assessment_question")
 }
 
 model AssessmentResponse {
@@ -124,6 +130,7 @@ model AssessmentResponse {
   question AssessmentQuestion  @relation(fields: [questionId], references: [id])
 
   @@unique([userId, questionId])
+  @@map("assessment_response")
 }
 
 model SkillProfile {
@@ -134,6 +141,7 @@ model SkillProfile {
   generatedAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+  @@map("skill_profile")
 }
 
 model ProblemTemplate {
@@ -154,6 +162,7 @@ model ProblemTemplate {
   updatedAt          DateTime @updatedAt
 
   assignedProblems AssignedProblem[]
+  @@map("problem_template")
 }
 
 model AssignedProblem {
@@ -169,6 +178,7 @@ model AssignedProblem {
   template ProblemTemplate @relation(fields: [problemTemplateId], references: [id])
 
   submissions Submission[]
+  @@map("assigned_problem")
 }
 
 model Submission {
@@ -190,6 +200,7 @@ model Submission {
   evaluations Evaluation[]
 
   @@unique([userId, assignedProblemId])
+  @@map("submission")
 }
 
 model Evaluation {
@@ -212,6 +223,7 @@ model Evaluation {
 
   submission Submission @relation(fields: [submissionId], references: [id])
   evaluator  User       @relation(fields: [evaluatorId], references: [id])
+  @@map("evaluation")
 }
 
 model LeaderboardEntry {
@@ -226,6 +238,7 @@ model LeaderboardEntry {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([userId, cycleId])
+  @@map("leaderboard_entry")
 }
 
 model AuditLog {
@@ -237,4 +250,5 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id])
+  @@map("audit_log")
 }
