@@ -5,7 +5,16 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import QuestionCard from "@/components/assessment/QuestionCard"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card"
 import LoadingSpinner from "@/components/shared/LoadingSpinner"
+import { CheckCircle2 } from "lucide-react"
+import Link from "next/link"
 
 interface Question {
   id: string
@@ -28,6 +37,7 @@ export default function AssessmentPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reviewing, setReviewing] = useState(false)
+  const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -35,9 +45,16 @@ export default function AssessmentPage() {
       return
     }
     if (status === "authenticated") {
+      const userStatus = (session?.user as any)?.status
+      if (userStatus === "ASSESSMENT_COMPLETED" || 
+          ["PROBLEM_ASSIGNED", "IN_PROGRESS", "SUBMITTED", "UNDER_REVIEW", "SHORTLISTED", "SELECTED"].includes(userStatus)) {
+        setCompleted(true)
+        setLoading(false)
+        return
+      }
       fetchQuestions()
     }
-  }, [status, router])
+  }, [status, session, router])
 
   async function fetchQuestions() {
     try {
@@ -138,6 +155,32 @@ export default function AssessmentPage() {
     if (typeof val === "string") return val.trim() !== ""
     if (typeof val === "number") return true
     return false
+  }
+
+  if (completed) {
+    return (
+      <div className="container mx-auto max-w-2xl px-4 py-8">
+        <Card>
+          <CardContent className="py-12 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
+              <CheckCircle2 className="h-8 w-8 text-green-500" />
+            </div>
+            <h2 className="mb-2 text-2xl font-bold">Assessment Completed</h2>
+            <p className="mb-6 text-muted-foreground">
+              You have already completed your skill assessment. Your skill profile has been created.
+            </p>
+            <div className="flex justify-center gap-3">
+              <Link href="/dashboard">
+                <Button>Go to Dashboard</Button>
+              </Link>
+              <Link href="/problems">
+                <Button variant="outline">View Problems</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   if (loading) {

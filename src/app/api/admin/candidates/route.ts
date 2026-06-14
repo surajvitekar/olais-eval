@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { hasPermission, Permission } from "@/lib/auth/permissions"
+import type { UserRole } from "@/types"
 
 export async function GET(request: Request) {
   try {
     const session = await auth()
-    if (!session?.user || session.user.role !== "ADMIN") {
+    if (!session?.user || !hasPermission(session.user.role as UserRole, Permission.VIEW_CANDIDATES)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
@@ -14,8 +16,20 @@ export async function GET(request: Request) {
     const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") ?? "20")))
     const search = url.searchParams.get("search") ?? ""
     const status = url.searchParams.get("status") ?? ""
+    const roleParam = url.searchParams.get("role") ?? ""
 
-    const where: Record<string, unknown> = { role: "CANDIDATE" }
+    const where: Record<string, unknown> = {}
+    if (roleParam) {
+      // Support multiple roles: role=ADMIN&role=REVIEWER
+      const roles = url.searchParams.getAll("role")
+      if (roles.length === 1) {
+        where.role = roles[0]
+      } else {
+        where.role = { in: roles }
+      }
+    } else {
+      where.role = "CANDIDATE"
+    }
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },

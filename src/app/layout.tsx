@@ -5,6 +5,7 @@ import Providers from "./providers"
 import Navbar from "@/components/shared/Navbar"
 import Footer from "@/components/shared/Footer"
 import PageTransition from "@/components/shared/PageTransition"
+import BrandStyles from "./BrandStyles"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -61,6 +62,7 @@ export default function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <BrandStyles />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <Providers>

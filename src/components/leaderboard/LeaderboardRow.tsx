@@ -1,12 +1,33 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge"
+import LevelBadge from "./LevelBadge"
+import PositionChange from "./PositionChange"
+import BadgeDisplay from "./BadgeDisplay"
+import XPProgressBar from "./XPProgressBar"
 
 interface LeaderboardRowProps {
   rank: number
   name: string
   submissionCount: number
   fastestTime: number | null
+  evaluationScore: number | null
+  interviewScore: number | null
+  totalScore: number | null
   status: string
   isCurrentUser?: boolean
+  // Gamification
+  xp?: number
+  level?: number
+  levelName?: string
+  tier?: string
+  levelEmoji?: string
+  levelColor?: string
+  previousRank?: number | null
+  rankChange?: "up" | "down" | "same" | "new"
+  rankChangeAmount?: number
+  badges?: Array<{ slug: string; name: string; emoji: string }>
+  xpProgress?: { current: number; nextLevel: number; percent: number; remaining: number }
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -55,8 +76,21 @@ export default function LeaderboardRow({
   name,
   submissionCount,
   fastestTime,
+  evaluationScore,
+  interviewScore,
+  totalScore,
   status,
   isCurrentUser,
+  xp,
+  level = 1,
+  levelName = "Getting Started",
+  tier = "bronze_iii",
+  levelEmoji = "🥉",
+  levelColor = "amber-700",
+  rankChange,
+  rankChangeAmount = 0,
+  badges,
+  xpProgress,
 }: LeaderboardRowProps) {
   return (
     <div
@@ -66,12 +100,15 @@ export default function LeaderboardRow({
           : "hover:bg-muted/50"
       }`}
     >
-      {/* Rank */}
-      <div className="w-12 text-center text-lg font-bold tabular-nums shrink-0">
-        {getRankDisplay(rank)}
+      {/* Rank + Position Change */}
+      <div className="w-12 text-center shrink-0">
+        <p className="text-lg font-bold tabular-nums">{getRankDisplay(rank)}</p>
+        {rankChange && (
+          <PositionChange type={rankChange} amount={rankChangeAmount} />
+        )}
       </div>
 
-      {/* Name */}
+      {/* Name + Level Badge + XP + Badges */}
       <div className="flex-1 min-w-0">
         <p className="font-medium truncate">
           {name}
@@ -79,6 +116,23 @@ export default function LeaderboardRow({
             <span className="ml-2 text-xs text-primary font-normal">(you)</span>
           )}
         </p>
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <LevelBadge level={level} name={levelName} emoji={levelEmoji} color={levelColor} />
+          <BadgeDisplay badges={badges || []} />
+          {xp != null && (
+            <span className="text-[10px] text-muted-foreground/60 font-mono">
+              {xp.toLocaleString()} XP
+            </span>
+          )}
+        </div>
+        {xpProgress && rank > 3 && (
+          <XPProgressBar
+            current={xpProgress.current}
+            nextLevel={xpProgress.nextLevel}
+            percent={xpProgress.percent}
+            color={tier}
+          />
+        )}
       </div>
 
       {/* Submission Count */}
@@ -90,8 +144,36 @@ export default function LeaderboardRow({
       {/* Fastest Time */}
       <div className="text-center shrink-0">
         <p className="text-sm text-muted-foreground">Fastest</p>
-        <p className="font-medium tabular-nums text-sm">
-          {formatTime(fastestTime)}
+        <p className="font-medium tabular-nums text-sm">{formatTime(fastestTime)}</p>
+      </div>
+
+      {/* AI Score */}
+      <div className="text-center shrink-0 w-16">
+        <p className="text-sm text-muted-foreground">AI Score</p>
+        <p className="font-bold tabular-nums">
+          {evaluationScore !== null && evaluationScore !== undefined
+            ? Math.round(evaluationScore)
+            : "—"}
+        </p>
+      </div>
+
+      {/* Interview Score */}
+      <div className="text-center shrink-0 w-16">
+        <p className="text-sm text-muted-foreground">Interview</p>
+        <p className="font-medium tabular-nums text-sm text-muted-foreground/50">
+          {interviewScore !== null && interviewScore !== undefined
+            ? Math.round(interviewScore)
+            : "xx"}
+        </p>
+      </div>
+
+      {/* Total Score */}
+      <div className="text-center shrink-0 w-16">
+        <p className="text-sm text-muted-foreground">Total</p>
+        <p className="font-medium tabular-nums text-sm text-muted-foreground/50">
+          {totalScore !== null && totalScore !== undefined
+            ? Math.round(totalScore)
+            : "xx"}
         </p>
       </div>
 

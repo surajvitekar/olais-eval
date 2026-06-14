@@ -37,7 +37,7 @@ README.md
 LICENSE
 
 # Docker
-docker
+docker/sandbox
 docker-compose*.yml
 
 # Coverage

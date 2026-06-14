@@ -17,6 +17,8 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import LoadingSpinner from "@/components/shared/LoadingSpinner"
+import { Settings, Sliders } from "lucide-react"
+import Link from "next/link"
 
 interface CampaignConfig {
   maxParticipants: number
@@ -204,6 +206,27 @@ export default function AdminSettingsPage() {
           </CardFooter>
         </Card>
 
+        {/* Scoring Dimensions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sliders className="h-5 w-5 text-primary" />
+              Scoring Dimensions
+            </CardTitle>
+            <CardDescription>
+              Configure the dimensions evaluators use to score interviews
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/settings/scoring">
+              <Button variant="outline" className="w-full">
+                Manage Scoring Dimensions
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone */}
         <Card>
           <CardHeader>
             <CardTitle>Danger Zone</CardTitle>

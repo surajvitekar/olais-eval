@@ -33,7 +33,7 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Install runtime dependencies
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl postgresql-client
 
 # Copy built assets from builder (using --chown to set permissions)
 COPY --chown=nextjs:nodejs --from=builder /app/public ./public
@@ -43,6 +43,7 @@ COPY --chown=nextjs:nodejs --from=builder /app/.next ./.next
 COPY --chown=nextjs:nodejs --from=builder /app/prisma ./prisma
 COPY --chown=nextjs:nodejs --from=builder /app/src/generated ./src/generated
 COPY --chown=nextjs:nodejs --from=builder /app/node_modules ./node_modules
+COPY --chown=nextjs:nodejs --from=builder /app/docker/backup ./docker/backup
 
 USER nextjs
 

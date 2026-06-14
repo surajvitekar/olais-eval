@@ -1,5 +1,14 @@
 # Olais Eval — Production Environment
 # Usage: docker compose -f docker-compose.prod.yml up -d
+#
+# Database Backups:
+#   Backup scripts:    docker/backup/backup.sh, docker/backup/restore.sh
+#   Backup volume:     pgbackup:/backup (mounted on db and app containers)
+#   Backup schedule (cron on host or container):
+#     Daily:   0 2 * * *   root docker exec olais-eval-db bash /app/docker/backup/backup.sh
+#     Weekly:  0 2 * * 0   root docker exec olais-eval-db bash /app/docker/backup/backup.sh
+#     Monthly: 0 2 1 * *   root docker exec olais-eval-db bash /app/docker/backup/backup.sh
+#   Retention: 7 daily, 4 weekly (Sundays), 3 monthly (1st of month)
 
 services:
   app:
@@ -14,6 +23,8 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - pgbackup:/backup
     depends_on:
       db:
         condition: service_healthy
@@ -31,9 +42,10 @@ services:
     image: nginx:alpine
     container_name: olais-eval-nginx
     ports:
-      - "80:80"
+      - "3003:80"
     volumes:
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./public:/usr/share/nginx/html:ro
       - nginx_logs:/var/log/nginx
     depends_on:
       - app
@@ -52,7 +64,8 @@ services:
       POSTGRES_DB: olais_eval
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - pgbackup:/backup
+      - pgbackup:/backup  # Backup volume for pg_dump output and restore input
+      - ./docker/backup:/app/docker/backup:ro  # Backup scripts mounted read-only
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U olais -d olais_eval"]
       interval: 10s

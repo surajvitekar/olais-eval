@@ -118,6 +118,29 @@ interface CandidateDetail {
     metadata: Record<string, unknown>
     createdAt: string
   }>
+  candidateInterviews?: Array<{
+    id: string
+    status: string
+    scheduledAt: string
+    duration: number
+    timezone: string
+    overallScore: number | null
+    evaluatorNotes: string | null
+    scoredAt: string | null
+    evaluator: { id: string; name: string | null; email: string } | null
+    interviewEvaluators: Array<{
+      id: string
+      role: string
+      user: { id: string; name: string | null; email: string }
+    }>
+    interviewScores: Array<{
+      id: string
+      score: number
+      notes: string | null
+      evaluator: { id: string; name: string | null; email: string }
+      dimension: { id: string; name: string; maxScore: number; weight: number }
+    }>
+  }>
 }
 
 export default function CandidateDetailPage() {
@@ -473,6 +496,100 @@ export default function CandidateDetailPage() {
                 ))}
               </TableBody>
             </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Interviews */}
+      {candidate.candidateInterviews && candidate.candidateInterviews.length > 0 && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Interviews
+            </CardTitle>
+            <CardDescription>
+              {candidate.candidateInterviews.length} interview(s) — scores from multiple evaluators
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {candidate.candidateInterviews.map((iv) => {
+              // Group scores by evaluator
+              const byEvaluator: Record<string, { name: string; scores: { dim: string; score: number; max: number }[] }> = {}
+              for (const s of iv.interviewScores) {
+                const key = s.evaluator.id
+                if (!byEvaluator[key]) {
+                  byEvaluator[key] = { name: s.evaluator.name || s.evaluator.email, scores: [] }
+                }
+                byEvaluator[key].scores.push({
+                  dim: s.dimension.name,
+                  score: s.score,
+                  max: s.dimension.maxScore,
+                })
+              }
+
+              return (
+                <div key={iv.id} className="rounded-lg border p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">
+                        {new Date(iv.scheduledAt).toLocaleDateString("en-US", {
+                          dateStyle: "medium",
+                        })}
+                      </span>
+                      <Badge variant={iv.status === "COMPLETED" ? "default" : iv.status === "CANCELLED" ? "destructive" : "secondary"}>
+                        {iv.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {iv.overallScore !== null && (
+                        <span className="text-sm font-bold">
+                          Score: {iv.overallScore}
+                          <span className="text-xs text-muted-foreground font-normal">/100</span>
+                        </span>
+                      )}
+                      {iv.status === "SCHEDULED" && (
+                        <Link href={`/admin/interviews/${iv.id}/helper`}>
+                          <Button size="sm" variant="outline" className="text-xs h-7">
+                            Score
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Evaluators */}
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Evaluators:{" "}
+                    {iv.interviewEvaluators.map((ie) => ie.user.name || ie.user.email).join(", ")}
+                  </div>
+
+                  {/* Per-evaluator scores */}
+                  {Object.entries(byEvaluator).length > 0 && (
+                    <div className="space-y-2">
+                      {Object.entries(byEvaluator).map(([evaluatorId, data]) => (
+                        <div key={evaluatorId} className="rounded bg-muted/30 p-2">
+                          <p className="text-xs font-medium mb-1">{data.name}</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                            {data.scores.map((s, i) => (
+                              <div key={i} className="flex items-center gap-1 text-xs">
+                                <span className="text-muted-foreground truncate">{s.dim}:</span>
+                                <span className="font-medium">{s.score}/{s.max}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {iv.evaluatorNotes && (
+                    <p className="text-xs text-muted-foreground mt-2 italic">
+                      Notes: {iv.evaluatorNotes}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
           </CardContent>
         </Card>
       )}

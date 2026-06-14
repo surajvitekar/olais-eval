@@ -63,6 +63,29 @@ export async function GET(
           orderBy: { createdAt: "desc" },
           take: 50,
         },
+        candidateInterviews: {
+          orderBy: { scheduledAt: "desc" },
+          include: {
+            evaluator: {
+              select: { id: true, name: true, email: true },
+            },
+            interviewEvaluators: {
+              include: {
+                user: { select: { id: true, name: true, email: true } },
+              },
+            },
+            interviewScores: {
+              include: {
+                dimension: {
+                  select: { id: true, name: true, maxScore: true, weight: true },
+                },
+                evaluator: {
+                  select: { id: true, name: true, email: true },
+                },
+              },
+            },
+          },
+        },
       },
     })
 

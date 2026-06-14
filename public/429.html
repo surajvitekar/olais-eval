@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Too Many Requests — Olais Eval</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f1a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 480px;
+    }
+    .gradient-bar {
+      height: 6px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa);
+      border-radius: 3px;
+      margin-bottom: 2.5rem;
+    }
+    .status-code {
+      font-size: 6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #f1f5f9;
+    }
+    p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+    .cooldown {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: #a5b4fc;
+      margin-bottom: 2rem;
+    }
+    .cooldown .icon {
+      font-size: 1.25rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .footer {
+      margin-top: 2.5rem;
+      font-size: 0.8rem;
+      color: #475569;
+    }
+    .retry-hint {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: #64748b;
+      border: 1px dashed #334155;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="gradient-bar"></div>
+    <div class="status-code">429</div>
+    <h1>Slow Down!</h1>
+    <p>
+      You've been making too many requests. Take a breather and try again
+      in a minute — we've temporarily paused new requests from your end.
+    </p>
+    <div class="cooldown">
+      <span class="icon">⏳</span>
+      <span>Please wait before retrying</span>
+    </div>
+    <div>
+      <a href="/" class="btn">Go Home</a>
+    </div>
+    <div class="retry-hint">Retry-After: 5 seconds</div>
+    <div class="footer">
+      Olais Eval — Skills Assessment Platform
+    </div>
+  </div>
+</body>
+</html>

@@ -37,13 +37,38 @@ interface LeaderboardEntry {
   userId: string
   submissionCount: number
   fastestTime: number | null
+  evaluationScore: number | null
+  interviewScore: number | null
+  combinedScore: number | null
   status: string
   hidden: boolean
   cycleId: string
   user: {
     name: string | null
     email: string
+    status: string
   }
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  REGISTERED: "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300",
+  ASSESSMENT_COMPLETED: "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300",
+  PROBLEM_ASSIGNED: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300",
+  IN_PROGRESS: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300",
+  SUBMITTED: "bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300",
+  UNDER_REVIEW: "bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300",
+  SHORTLISTED: "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300",
+  SELECTED: "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-900 dark:text-emerald-300",
+  REJECTED: "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300",
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const style = STATUS_STYLES[status] || "bg-gray-100 text-gray-800"
+  return (
+    <Badge className={`font-medium ${style}`} variant="outline">
+      {status.replace(/_/g, " ")}
+    </Badge>
+  )
 }
 
 function formatTime(seconds: number | null): string {
@@ -56,6 +81,50 @@ function formatTime(seconds: number | null): string {
   return `${s}s`
 }
 
+function formatScore(score: number | null | undefined): string {
+  if (score === null || score === undefined) return "—"
+  return score.toFixed(1)
+}
+
+function sortEntries(entries: LeaderboardEntry[], sortField: string, sortDir: "asc" | "desc"): LeaderboardEntry[] {
+  return [...entries].sort((a, b) => {
+    let aVal: number | null = null
+    let bVal: number | null = null
+
+    switch (sortField) {
+      case "combinedScore":
+        aVal = a.combinedScore
+        bVal = b.combinedScore
+        break
+      case "evaluationScore":
+        aVal = a.evaluationScore
+        bVal = b.evaluationScore
+        break
+      case "interviewScore":
+        aVal = a.interviewScore
+        bVal = b.interviewScore
+        break
+      case "submissionCount":
+        aVal = a.submissionCount
+        bVal = b.submissionCount
+        break
+      case "fastestTime":
+        aVal = a.fastestTime
+        bVal = b.fastestTime
+        break
+      default:
+        return 0
+    }
+
+    // Nulls last
+    if (aVal === null && bVal === null) return 0
+    if (aVal === null) return 1
+    if (bVal === null) return -1
+
+    return sortDir === "asc" ? aVal - bVal : bVal - aVal
+  })
+}
+
 export default function AdminLeaderboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -65,6 +134,10 @@ export default function AdminLeaderboardPage() {
   const [togglingId, setTogglingId] = useState<string | null>(null)
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
   const [resetting, setResetting] = useState(false)
+
+  // Sorting state
+  const [sortField, setSortField] = useState("combinedScore")
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc")
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -131,6 +204,20 @@ export default function AdminLeaderboardPage() {
     }
   }
 
+  function handleSort(field: string) {
+    if (sortField === field) {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"))
+    } else {
+      setSortField(field)
+      setSortDir("desc")
+    }
+  }
+
+  function SortIcon({ field }: { field: string }) {
+    if (sortField !== field) return <span className="ml-1 text-muted-foreground/40">↕</span>
+    return <span className="ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center">
@@ -139,8 +226,16 @@ export default function AdminLeaderboardPage() {
     )
   }
 
-  const visibleEntries = entries.filter((e) => !e.hidden)
-  const hiddenEntries = entries.filter((e) => e.hidden)
+  const visibleEntries = sortEntries(
+    entries.filter((e) => !e.hidden),
+    sortField,
+    sortDir
+  )
+  const hiddenEntries = sortEntries(
+    entries.filter((e) => e.hidden),
+    sortField,
+    sortDir
+  )
 
   return (
     <div>
@@ -201,9 +296,27 @@ export default function AdminLeaderboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Candidate</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead
+                    className="cursor-pointer select-none"
+                    onClick={() => handleSort("evaluationScore")}
+                  >
+                    Eval Score<SortIcon field="evaluationScore" />
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer select-none"
+                    onClick={() => handleSort("interviewScore")}
+                  >
+                    Interview Score<SortIcon field="interviewScore" />
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer select-none"
+                    onClick={() => handleSort("combinedScore")}
+                  >
+                    Combined Score<SortIcon field="combinedScore" />
+                  </TableHead>
                   <TableHead>Submissions</TableHead>
                   <TableHead>Fastest Time</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Cycle</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -214,14 +327,21 @@ export default function AdminLeaderboardPage() {
                     <TableCell className="font-medium">
                       {entry.user.name || entry.user.email}
                     </TableCell>
+                    <TableCell>
+                      <StatusBadge status={entry.user.status} />
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {formatScore(entry.evaluationScore)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {formatScore(entry.interviewScore)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs font-semibold">
+                      {formatScore(entry.combinedScore)}
+                    </TableCell>
                     <TableCell>{entry.submissionCount}</TableCell>
                     <TableCell className="font-mono text-xs">
                       {formatTime(entry.fastestTime)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {entry.status.replace(/_/g, " ")}
-                      </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {entry.cycleId}
@@ -264,9 +384,27 @@ export default function AdminLeaderboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Candidate</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead
+                    className="cursor-pointer select-none"
+                    onClick={() => handleSort("evaluationScore")}
+                  >
+                    Eval Score<SortIcon field="evaluationScore" />
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer select-none"
+                    onClick={() => handleSort("interviewScore")}
+                  >
+                    Interview Score<SortIcon field="interviewScore" />
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer select-none"
+                    onClick={() => handleSort("combinedScore")}
+                  >
+                    Combined Score<SortIcon field="combinedScore" />
+                  </TableHead>
                   <TableHead>Submissions</TableHead>
                   <TableHead>Fastest Time</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Cycle</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -277,14 +415,21 @@ export default function AdminLeaderboardPage() {
                     <TableCell className="font-medium">
                       {entry.user.name || entry.user.email}
                     </TableCell>
+                    <TableCell>
+                      <StatusBadge status={entry.user.status} />
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {formatScore(entry.evaluationScore)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {formatScore(entry.interviewScore)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs font-semibold">
+                      {formatScore(entry.combinedScore)}
+                    </TableCell>
                     <TableCell>{entry.submissionCount}</TableCell>
                     <TableCell className="font-mono text-xs">
                       {formatTime(entry.fastestTime)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {entry.status.replace(/_/g, " ")}
-                      </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {entry.cycleId}

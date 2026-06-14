@@ -1,8 +1,12 @@
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
 export enum UserRole {
+  SUPER_ADMIN = "SUPER_ADMIN",
   ADMIN = "ADMIN",
+  REVIEWER = "REVIEWER",
+  HIRING_MANAGER = "HIRING_MANAGER",
   CANDIDATE = "CANDIDATE",
+  READ_ONLY = "READ_ONLY",
 }
 
 export enum UserStatus {
@@ -173,4 +177,59 @@ export interface AuditLogData {
   metadata: Record<string, unknown>
   ip: string | null
   createdAt: Date
+}
+
+export interface WebhookEndpointData {
+  id: string
+  name: string
+  url: string
+  secret: string
+  events: string[]
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface WebhookEventData {
+  id: string
+  endpointId: string
+  event: string
+  payload: Record<string, unknown>
+  status: string
+  responseCode: number | null
+  attempts: number
+  nextRetryAt: Date | null
+  deliveredAt: Date | null
+  createdAt: Date
+}
+
+export const WEBHOOK_EVENTS = {
+  CANDIDATE_REGISTERED: "candidate.registered",
+  ASSESSMENT_COMPLETED: "assessment.completed",
+  SUBMISSION_SUBMITTED: "submission.submitted",
+  EVALUATION_COMPLETED: "evaluation.completed",
+} as const
+
+export type WebhookEventType = (typeof WEBHOOK_EVENTS)[keyof typeof WEBHOOK_EVENTS]
+
+// ─── Interview Types (Time Zone & Calendar) ─────────────────────────────────
+
+export enum InterviewStatus {
+  SCHEDULED = "SCHEDULED",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+}
+
+export interface InterviewData {
+  id: string
+  candidateId: string
+  evaluatorId: string | null
+  scheduledAt: Date
+  duration: number
+  timezone: string
+  status: InterviewStatus
+  notes: string | null
+  meetingLink: string | null
+  createdAt: Date
+  updatedAt: Date
 }

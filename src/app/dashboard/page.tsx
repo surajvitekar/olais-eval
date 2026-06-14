@@ -50,6 +50,96 @@ const STATUS_COLORS: Record<string, string> = {
   SELECTED: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300",
 }
 
+const PIPELINE_STAGES = [
+  "REGISTERED",
+  "ASSESSMENT_COMPLETED",
+  "PROBLEM_ASSIGNED",
+  "IN_PROGRESS",
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "SHORTLISTED",
+  "SELECTED",
+]
+
+const TERMINAL_STAGES = ["REJECTED", "SELECTED"]
+
+function PipelineIndicator({ currentStatus }: { currentStatus: string }) {
+  const currentIdx = PIPELINE_STAGES.indexOf(currentStatus)
+  const isTerminal = TERMINAL_STAGES.includes(currentStatus)
+
+  // If REJECTED, show a simpler indicator
+  if (currentStatus === "REJECTED") {
+    return (
+      <div className="mt-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-2 flex-1 rounded-full bg-red-200 dark:bg-red-900">
+            <div className="h-2 rounded-full bg-red-500" style={{ width: "100%" }} />
+          </div>
+          <span className="text-xs font-medium text-red-600 dark:text-red-400">Rejected</span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Your application has been reviewed. We will reach out if there are updates.
+        </p>
+      </div>
+    )
+  }
+
+  // If SELECTED, show full green
+  if (currentStatus === "SELECTED") {
+    return (
+      <div className="mt-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-2 flex-1 rounded-full bg-green-200 dark:bg-green-900">
+            <div className="h-2 rounded-full bg-green-500" style={{ width: "100%" }} />
+          </div>
+          <span className="text-xs font-medium text-green-600 dark:text-green-400">Selected!</span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Congratulations! You have been selected. Check your email for next steps.
+        </p>
+      </div>
+    )
+  }
+
+  if (currentIdx < 0) return null
+
+  const progress = isTerminal ? 100 : ((currentIdx + 1) / PIPELINE_STAGES.length) * 100
+
+  return (
+    <div className="mt-4">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="h-2 flex-1 rounded-full bg-gray-200 dark:bg-gray-700">
+          <div
+            className="h-2 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-teal-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <span className="text-xs font-medium text-muted-foreground">
+          Stage {currentIdx + 1}/{PIPELINE_STAGES.length}
+        </span>
+      </div>
+      <div className="flex justify-between text-[10px] text-muted-foreground">
+        {PIPELINE_STAGES.map((stage, i) => (
+          <div
+            key={stage}
+            className={`text-center ${
+              i <= currentIdx
+                ? "font-semibold text-foreground"
+                : "opacity-40"
+            }`}
+            style={{ width: `${100 / PIPELINE_STAGES.length}%` }}
+          >
+            <div className="hidden sm:block">{STATUS_LABELS[stage]}</div>
+            <div className="sm:hidden">
+              {i === currentIdx ? STATUS_LABELS[stage] : "·"}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -175,6 +265,7 @@ export default function DashboardPage() {
                 </Button>
               )}
             </div>
+            {!isAdmin && <PipelineIndicator currentStatus={userStatus} />}
           </CardContent>
         </Card>
 
@@ -220,6 +311,17 @@ export default function DashboardPage() {
                     <Button variant="outline" className="w-full">
                       {problems.length > 0 ? "View Problems" : "No problems yet"}
                     </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Interviews</CardTitle>
+                  <CardDescription>Your scheduled interviews</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link href="/interviews">
+                    <Button variant="outline" className="w-full">View Interviews</Button>
                   </Link>
                 </CardContent>
               </Card>

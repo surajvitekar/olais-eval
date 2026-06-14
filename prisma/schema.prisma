@@ -13,8 +13,12 @@ datasource db {
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
 enum UserRole {
+  SUPER_ADMIN
   ADMIN
+  REVIEWER
+  HIRING_MANAGER
   CANDIDATE
+  READ_ONLY
 }
 
 enum UserStatus {
@@ -87,6 +91,11 @@ model User {
   evaluations       Evaluation[]
   leaderboardEntries LeaderboardEntry[]
   auditLogs         AuditLog[]
+  candidateInterviews Interview[]      @relation("CandidateInterviews")
+  evaluatorInterviews Interview[]      @relation("EvaluatorInterviews")
+  interviewEvaluators InterviewEvaluator[]
+  interviewScores    InterviewScore[]
+  interviewDrafts    InterviewDraft[]
   @@map("user")
 }
 
@@ -226,19 +235,88 @@ model Evaluation {
   @@map("evaluation")
 }
 
+model EvaluationConfig {
+  id               String   @id @default(cuid())
+  name             String   @default("default")
+  dimensionWeights Json
+  passingScore     Float    @default(60.0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([name])
+  @@map("evaluation_config")
+}
+
 model LeaderboardEntry {
   id              String   @id @default(cuid())
   userId          String
   cycleId         String
   submissionCount Int      @default(0)
   fastestTime     Int?
+  evaluationScore Float?
+  interviewScore  Float?
+  combinedScore   Float?
   status          String   @default("active")
   hidden          Boolean  @default(false)
+
+  // ── Gamification fields ─────────────────────────────────────────────────
+  xp              Int      @default(0)
+  level           Int      @default(1)
+  previousRank    Int?     @map("previous_rank")
+  badges          Json     @default("[]")
 
   user User @relation(fields: [userId], references: [id])
 
   @@unique([userId, cycleId])
   @@map("leaderboard_entry")
+}
+
+model BadgeDefinition {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  emoji       String
+  description String
+  criteria    Json
+  createdAt   DateTime @default(now())
+
+  @@map("badge_definition")
+}
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  subject   String
+  htmlBody  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email_template")
+}
+
+// ─── Brand Config ────────────────────────────────────────────────────────────
+// White-label branding singleton: only one active config at a time.
+
+model BrandConfig {
+  id              String   @id @default(cuid())
+  companyName     String?
+  logoUrl         String?
+  faviconUrl      String?
+  primaryColor    String   @default("#10b981")
+  secondaryColor  String   @default("#1f2937")
+  accentColor     String   @default("#6366f1")
+  customDomain    String?
+  emailFromName   String?
+  emailFromAddress String?
+  loginBackground String?
+  isActive        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([customDomain])
+  @@map("brand_config")
 }
 
 model AuditLog {
@@ -251,4 +329,141 @@ model AuditLog {
 
   user User? @relation(fields: [userId], references: [id])
   @@map("audit_log")
+}
+
+model WebhookEndpoint {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  secret    String
+  events    String[]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  webhookEvents WebhookEvent[]
+
+  @@map("webhook_endpoint")
+}
+
+model WebhookEvent {
+  id           String    @id @default(cuid())
+  endpointId   String
+  event        String
+  payload      Json
+  status       String    @default("PENDING")
+  responseCode Int?
+  attempts     Int       @default(0)
+  nextRetryAt  DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  endpoint WebhookEndpoint @relation(fields: [endpointId], references: [id])
+
+  @@map("webhook_event")
+}
+
+// ─── Interview (Time Zone & Calendar) ───────────────────────────────────────
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+model Interview {
+  id              String          @id @default(cuid())
+  candidateId     String
+  evaluatorId     String?
+  scheduledAt     DateTime
+  duration        Int             @default(60)
+  timezone        String          @default("UTC")
+  status          InterviewStatus @default(SCHEDULED)
+  notes           String?
+  meetingLink     String?
+  problemSolving  Int?
+  techSkills      Int?
+  communication   Int?
+  culturalFit     Int?
+  overallScore    Float?
+  evaluatorNotes  String?
+  scoredAt        DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  candidate User  @relation("CandidateInterviews", fields: [candidateId], references: [id])
+  evaluator User? @relation("EvaluatorInterviews", fields: [evaluatorId], references: [id])
+  interviewEvaluators InterviewEvaluator[]
+  interviewScores    InterviewScore[]
+  interviewDrafts    InterviewDraft[]
+
+  @@map("interview")
+}
+
+// ─── Interview Evaluator (multi-evaluator support) ─────────────────────────
+
+model InterviewEvaluator {
+  id          String @id @default(cuid())
+  interviewId String
+  userId      String
+  role        String @default("EVALUATOR") // EVALUATOR, LEAD, SHADOW
+
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([interviewId, userId])
+  @@map("interview_evaluator")
+}
+
+// ─── Scoring Dimension (configurable rubric) ───────────────────────────────
+
+model ScoringDimension {
+  id           String   @id @default(cuid())
+  cycleId      String?
+  name         String
+  description  String?
+  minScore     Int      @default(0)
+  maxScore     Int      @default(100)
+  weight       Float    @default(1.0)
+  rubric       Json?
+  displayOrder Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  interviewScores InterviewScore[]
+
+  @@map("scoring_dimension")
+}
+
+model InterviewScore {
+  id          String   @id @default(cuid())
+  interviewId String
+  evaluatorId String
+  dimensionId String
+  score       Int
+  notes       String?
+  submittedAt DateTime @default(now())
+
+  interview  Interview        @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  evaluator  User             @relation(fields: [evaluatorId], references: [id])
+  dimension  ScoringDimension @relation(fields: [dimensionId], references: [id])
+
+  @@unique([interviewId, evaluatorId, dimensionId])
+  @@map("interview_score")
+}
+
+model InterviewDraft {
+  id          String   @id @default(cuid())
+  interviewId String
+  evaluatorId String
+  scores      Json     @default("{}")
+  notes       String   @default("")
+  savedAt     DateTime @updatedAt
+
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  evaluator User      @relation(fields: [evaluatorId], references: [id])
+
+  @@unique([interviewId, evaluatorId])
+  @@map("interview_draft")
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -484,5 +485,19 @@ function LandingContent() {
 }
 
 export default function LandingPage() {
+  const { status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/dashboard")
+    }
+  }, [status, router])
+
+  // Show landing immediately; redirect happens via useEffect when session loads
+  if (status === "authenticated") {
+    return null
+  }
+
   return <LandingContent />
 }

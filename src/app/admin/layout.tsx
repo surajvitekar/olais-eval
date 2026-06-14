@@ -4,6 +4,9 @@ import { useSession } from "next-auth/react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { signOut } from "next-auth/react"
+import { isAdminRole } from "@/lib/auth/permissions"
+import type { UserRole } from "@/types"
 import {
   LayoutDashboard,
   Users,
@@ -15,18 +18,39 @@ import {
   Menu,
   LogOut,
   Mail,
+  Download,
+  Webhook,
+  BarChart3,
+  FileSpreadsheet,
+  ShieldAlert,
+  ClipboardList,
+  Palette,
+  Shield,
+  Calendar,
+  Database,
+  Activity,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { signOut } from "next-auth/react"
 
 const sidebarLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/candidates", label: "Candidates", icon: Users },
   { href: "/admin/invites", label: "Invites", icon: Mail },
+  { href: "/admin/interviews", label: "Interviews", icon: Calendar },
   { href: "/admin/submissions", label: "Submissions", icon: FileText },
+  { href: "/admin/evaluations", label: "Evaluations", icon: ClipboardList },
   { href: "/admin/problems", label: "Problem Bank", icon: ClipboardCheck },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/admin/exports", label: "Exports", icon: Download },
+  { href: "/admin/backups", label: "Backups", icon: Database },
+  { href: "/admin/email-templates", label: "Email Templates", icon: FileSpreadsheet },
+  { href: "/admin/webhooks", label: "Webhooks", icon: Webhook },
   { href: "/admin/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/admin/plagiarism", label: "Plagiarism", icon: ShieldAlert },
+  { href: "/admin/monitoring", label: "Monitoring", icon: Activity },
+  { href: "/admin/security", label: "Security", icon: Shield },
   { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin/branding", label: "Branding", icon: Palette },
 ]
 
 export default function AdminLayout({
@@ -44,7 +68,7 @@ export default function AdminLayout({
       router.push("/login")
       return
     }
-    if (status === "authenticated" && session?.user?.role !== "ADMIN") {
+    if (status === "authenticated" && !isAdminRole(session?.user?.role as UserRole)) {
       router.push("/dashboard")
     }
   }, [status, session, router])
@@ -57,7 +81,7 @@ export default function AdminLayout({
     )
   }
 
-  if (session?.user?.role !== "ADMIN") {
+  if (!session?.user?.role || !isAdminRole(session.user.role as UserRole)) {
     return null
   }
 

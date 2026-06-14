@@ -1,33 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import {
+  EVALUATION_DIMENSIONS,
+  calculateCompositeScore,
+  getPerformanceLabel,
+  getPerformanceColor,
+  formatScoreBreakdown,
+  EVALUATION_RUBRIC,
+} from "@/lib/evaluations/scoring"
+import type { DimensionKey, DimensionWeights } from "@/lib/evaluations/scoring"
 
-const DIMENSIONS = [
-  { key: "executionScore", label: "Execution", description: "Code runs, meets requirements, handles edge cases" },
-  { key: "architectureScore", label: "Architecture", description: "Project structure, component design, data flow" },
-  { key: "thoughtProcessScore", label: "Thought Process", description: "Problem-solving approach, planning, trade-offs" },
-  { key: "aiUsageScore", label: "AI Usage", description: "Effective use of AI tools, prompt quality, iteration" },
-  { key: "deploymentScore", label: "Deployment", description: "Live deployment, CI/CD, environment config" },
-  { key: "codeOrganizationScore", label: "Code Org", description: "Clean code, naming, file organization, conventions" },
-  { key: "uiUxScore", label: "UI/UX", description: "Interface quality, responsiveness, user experience" },
-  { key: "communicationScore", label: "Communication", description: "Documentation, comments, clarity of explanation" },
-]
-
-// Weight configuration for each dimension (total = 100)
-const WEIGHTS: Record<string, number> = {
-  executionScore: 0.25,
-  architectureScore: 0.15,
-  thoughtProcessScore: 0.15,
-  aiUsageScore: 0.10,
-  deploymentScore: 0.10,
-  codeOrganizationScore: 0.10,
-  uiUxScore: 0.08,
-  communicationScore: 0.07,
-}
+const DIMENSIONS = EVALUATION_DIMENSIONS
 
 interface EvaluationFormProps {
   submissionId: string
@@ -45,6 +34,8 @@ interface EvaluationFormProps {
     totalScore?: number
     notes?: string | null
   }
+  weights?: DimensionWeights
+  showRubric?: boolean
 }
 
 function SliderInput({
@@ -52,12 +43,22 @@ function SliderInput({
   description,
   value,
   onChange,
+  showRubric,
 }: {
   label: string
   description: string
   value: number
   onChange: (v: number) => void
+  showRubric?: boolean
 }) {
+  const [showRubricDetail, setShowRubricDetail] = useState(false)
+  const dimKey = EVALUATION_DIMENSIONS.find(
+    (d) => d.label === label
+  )?.key as DimensionKey | undefined
+  const rubric = dimKey
+    ? EVALUATION_RUBRIC.find((r) => r.key === dimKey)
+    : undefined
+
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
@@ -95,11 +96,114 @@ function SliderInput({
         <span>Average</span>
         <span>Excellent</span>
       </div>
+
+      {/* Rubric display */}
+      {showRubric && rubric && (
+        <div className="mt-1">
+          <button
+            type="button"
+            onClick={() => setShowRubricDetail(!showRubricDetail)}
+            className="text-xs text-primary hover:underline focus:outline-none"
+          >
+            {showRubricDetail ? "Hide rubric" : "Show rubric"}
+          </button>
+          {showRubricDetail && (
+            <div className="mt-1.5 space-y-1 rounded-md border border-border bg-muted/50 p-2">
+              {rubric.levels.map((level) => {
+                const isCurrentLevel =
+                  value >= level.range[0] && value <= level.range[1]
+                return (
+                  <div
+                    key={level.label}
+                    className={`flex items-start gap-2 text-xs ${
+                      isCurrentLevel
+                        ? "font-medium text-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    <Badge
+                      variant={isCurrentLevel ? "default" : "outline"}
+                      className="shrink-0 text-[10px] px-1.5 py-0"
+                    >
+                      {level.label}
+                      <span className="ml-0.5 opacity-70">
+                        ({level.range[0]}-{level.range[1]})
+                      </span>
+                    </Badge>
+                    <span>{level.criteria}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
-export default function EvaluationForm({ submissionId, onComplete, initialData }: EvaluationFormProps) {
+function BreakdownTable({
+  breakdown,
+  totalScore,
+}: {
+  breakdown: ReturnType<typeof formatScoreBreakdown>
+  totalScore: number
+}) {
+  return (
+    <div className="space-y-2">
+      <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        Score Breakdown
+      </h4>
+      <div className="rounded-md border border-border overflow-hidden">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="bg-muted/50 border-b border-border">
+              <th className="text-left px-3 py-1.5 font-medium">Dimension</th>
+              <th className="text-right px-2 py-1.5 font-medium">Score</th>
+              <th className="text-right px-2 py-1.5 font-medium">Weight</th>
+              <th className="text-right px-3 py-1.5 font-medium">Contrib.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {breakdown.map((row) => (
+              <tr
+                key={row.key}
+                className="border-b border-border last:border-0"
+              >
+                <td className="px-3 py-1.5">{row.label}</td>
+                <td className="px-2 py-1.5 text-right tabular-nums">
+                  {row.score !== null ? `${row.score}/10` : "—"}
+                </td>
+                <td className="px-2 py-1.5 text-right tabular-nums">
+                  {Math.round(row.weight * 100)}%
+                </td>
+                <td className="px-3 py-1.5 text-right tabular-nums font-medium">
+                  {row.weightedContribution}
+                </td>
+              </tr>
+            ))}
+            <tr className="bg-muted/30 border-t-2 border-border">
+              <td className="px-3 py-1.5 font-semibold">Total</td>
+              <td className="px-2 py-1.5"></td>
+              <td className="px-2 py-1.5"></td>
+              <td className="px-3 py-1.5 text-right font-bold tabular-nums">
+                {totalScore}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+export default function EvaluationForm({
+  submissionId,
+  onComplete,
+  initialData,
+  weights,
+  showRubric = true,
+}: EvaluationFormProps) {
   const [scores, setScores] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {}
     DIMENSIONS.forEach((d) => {
@@ -111,16 +215,15 @@ export default function EvaluationForm({ submissionId, onComplete, initialData }
   })
   const [notes, setNotes] = useState(initialData?.notes ?? "")
   const [submitting, setSubmitting] = useState(false)
+  const [showBreakdown, setShowBreakdown] = useState(false)
 
-  function calculateTotal(scores: Record<string, number>): number {
-    let total = 0
-    for (const d of DIMENSIONS) {
-      total += (scores[d.key] / 10) * WEIGHTS[d.key] * 100
-    }
-    return Math.round(total * 10) / 10
-  }
+  const totalScore = calculateCompositeScore(scores, weights)
+  const performanceLabel = getPerformanceLabel(totalScore)
+  const performanceColor = getPerformanceColor(totalScore)
+  const breakdown = formatScoreBreakdown(scores, weights)
+  const passingScore = 60
 
-  const totalScore = calculateTotal(scores)
+  const isPassing = totalScore >= passingScore
 
   function updateScore(key: string, value: number) {
     setScores((prev) => ({ ...prev, [key]: value }))
@@ -170,6 +273,9 @@ export default function EvaluationForm({ submissionId, onComplete, initialData }
     <Card>
       <CardHeader>
         <CardTitle>Evaluation Form</CardTitle>
+        <CardDescription>
+          Rate the submission on each dimension (1-10)
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {DIMENSIONS.map((dim) => (
@@ -179,18 +285,52 @@ export default function EvaluationForm({ submissionId, onComplete, initialData }
             description={dim.description}
             value={scores[dim.key]}
             onChange={(v) => updateScore(dim.key, v)}
+            showRubric={showRubric}
           />
         ))}
 
-        <div className="border-t pt-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="border-t pt-4 space-y-4">
+          {/* Live total score with performance label */}
+          <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium">Total Score</span>
-              <p className="text-xs text-muted-foreground">Weighted out of 100</p>
+              <span className="text-sm font-medium">Composite Score</span>
+              <p className="text-xs text-muted-foreground">
+                Weighted total out of 100
+              </p>
             </div>
-            <span className="text-2xl font-bold tabular-nums">{totalScore}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold tabular-nums">
+                {totalScore}
+              </span>
+              <Badge className={performanceColor}>
+                {performanceLabel}
+              </Badge>
+            </div>
           </div>
 
+          {/* Passing indicator */}
+          <div className="flex items-center gap-2 text-xs">
+            <span className={isPassing ? "text-green-600" : "text-red-600"}>
+              {isPassing ? "✓" : "✗"}
+            </span>
+            <span className="text-muted-foreground">
+              {isPassing
+                ? "Passing (above minimum)"
+                : `Below passing threshold (${passingScore})`}
+            </span>
+          </div>
+
+          {/* Toggle breakdown */}
+          <button
+            type="button"
+            onClick={() => setShowBreakdown(!showBreakdown)}
+            className="text-xs text-primary hover:underline focus:outline-none"
+          >
+            {showBreakdown ? "Hide detailed breakdown" : "Show detailed breakdown"}
+          </button>
+          {showBreakdown && <BreakdownTable breakdown={breakdown} totalScore={totalScore} />}
+
+          {/* Notes */}
           <div className="space-y-2">
             <Label htmlFor="notes">Evaluator Notes</Label>
             <textarea
@@ -209,7 +349,11 @@ export default function EvaluationForm({ submissionId, onComplete, initialData }
           disabled={submitting}
           className="w-full"
         >
-          {submitting ? "Saving..." : initialData ? "Update Evaluation" : "Submit Evaluation"}
+          {submitting
+            ? "Saving..."
+            : initialData
+            ? "Update Evaluation"
+            : "Submit Evaluation"}
         </Button>
       </CardContent>
     </Card>

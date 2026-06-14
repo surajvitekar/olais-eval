@@ -86,8 +86,10 @@ export default function ProblemDetailPage() {
   // Mark as IN_PROGRESS on first view
   useEffect(() => {
     if (problem && problem.status === "ASSIGNED") {
-      fetch(`/api/candidate/problems/assign`, {
-        method: "POST",
+      fetch(`/api/candidate/problems/${problem.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "IN_PROGRESS" }),
       }).catch(() => {})
       // We'll update status client-side
       setProblem((prev) =>

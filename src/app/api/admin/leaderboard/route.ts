@@ -12,6 +12,7 @@ export async function GET() {
     const entries = await prisma.leaderboardEntry.findMany({
       orderBy: [
         { hidden: "asc" },
+        { combinedScore: { sort: "desc", nulls: "last" } },
         { submissionCount: "desc" },
         { fastestTime: "asc" },
       ],
@@ -21,12 +22,21 @@ export async function GET() {
             id: true,
             name: true,
             email: true,
+            status: true,
           },
         },
       },
     })
 
-    return NextResponse.json({ entries })
+    // Map entries to include combinedScore even when null
+    const mappedEntries = entries.map((entry) => ({
+      ...entry,
+      evaluationScore: entry.evaluationScore ?? null,
+      interviewScore: entry.interviewScore ?? null,
+      combinedScore: entry.combinedScore ?? null,
+    }))
+
+    return NextResponse.json({ entries: mappedEntries })
   } catch (error) {
     console.error("Admin leaderboard error:", error)
     return NextResponse.json(
