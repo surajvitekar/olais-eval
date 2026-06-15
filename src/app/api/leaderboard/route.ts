@@ -8,12 +8,16 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     const cycleId = url.searchParams.get("cycle") ?? ""
     const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") ?? "50")))
+    const minScore = url.searchParams.get("minScore")
 
     const where: Record<string, unknown> = {
       hidden: false,
     }
     if (cycleId) {
       where.cycleId = cycleId
+    }
+    if (minScore) {
+      where.combinedScore = { gte: parseFloat(minScore) }
     }
 
     const entries = await prisma.leaderboardEntry.findMany({

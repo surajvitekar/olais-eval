@@ -4,6 +4,14 @@ import { prisma } from "@/lib/prisma"
 import { assignProblems } from "@/lib/problem-assigner"
 import { logAudit } from "@/lib/audit"
 
+/** Compute the deadline for a newly assigned problem. */
+function computeDeadline(): Date {
+  const hours = parseInt(process.env.PROBLEM_DEADLINE_HOURS ?? "72", 10)
+  const deadline = new Date()
+  deadline.setTime(deadline.getTime() + hours * 60 * 60 * 1000)
+  return deadline
+}
+
 export async function POST() {
   try {
     const session = await auth()
@@ -47,6 +55,7 @@ export async function POST() {
           problemTemplateId: needed[0].id as string,
           status: "ASSIGNED",
           variantConfig: {},
+          deadline: computeDeadline(),
         },
       })
 
@@ -76,6 +85,7 @@ export async function POST() {
       )
     }
 
+    const deadline = computeDeadline()
     const assignments = await prisma.$transaction(async (tx) => {
       const created = []
       for (const pick of picks.slice(0, 2)) {
@@ -85,6 +95,7 @@ export async function POST() {
             problemTemplateId: pick.id as string,
             status: "ASSIGNED",
             variantConfig: {},
+            deadline,
           },
         })
         created.push(ap)

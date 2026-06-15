@@ -2,14 +2,21 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth()
     if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
+    const url = new URL(request?.url ?? "http://localhost")
+    const minScore = url.searchParams.get("minScore")
+    const cutoffWhere = minScore
+      ? { combinedScore: { gte: parseFloat(minScore) } }
+      : {}
+
     const entries = await prisma.leaderboardEntry.findMany({
+      where: cutoffWhere,
       orderBy: [
         { hidden: "asc" },
         { combinedScore: { sort: "desc", nulls: "last" } },

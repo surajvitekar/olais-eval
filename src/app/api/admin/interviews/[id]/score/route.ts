@@ -16,6 +16,7 @@ import { prisma } from "@/lib/prisma"
 import { hasPermission, Permission } from "@/lib/auth/permissions"
 import type { UserRole } from "@/types"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 // ── Validation Schemas ─────────────────────────────────────────────────────
 
@@ -169,6 +170,13 @@ async function handleLegacyScoring(
 
   await updateLeaderboardEntry(existing.candidateId, overallScore)
 
+  await logAudit("interview.scored", {
+    interviewId: id,
+    mode: "legacy",
+    overallScore,
+    evaluatorId: userId,
+  }, userId)
+
   return NextResponse.json(interview)
 }
 
@@ -271,6 +279,14 @@ async function handleDynamicScoring(
       : overallScore
 
   await updateLeaderboardEntry(existing.candidateId, avgScore)
+
+  await logAudit("interview.scored", {
+    interviewId: id,
+    mode: "dynamic",
+    overallScore,
+    dimensionCount: dimensionScores.length,
+    evaluatorId: userId,
+  }, userId)
 
   return NextResponse.json(interview)
 }
